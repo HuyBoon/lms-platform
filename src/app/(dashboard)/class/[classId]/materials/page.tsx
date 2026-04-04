@@ -27,71 +27,88 @@ export default async function MaterialsPage({
   if (!classroom) return <div className="p-8 text-center text-slate-500 font-black uppercase italic">Neural Network Disconnected</div>
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-black tracking-tight uppercase italic text-white flex items-center gap-3">
-            <FileText className="size-8 text-primary" />
-            RESOURCE HUB
+    <div className="flex-1 space-y-10 p-10 pt-8 bg-background/50">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-3">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight uppercase italic text-foreground flex items-center gap-4">
+            <div className="p-3 bg-secondary rounded-2xl shadow-lg border-4 border-white rotate-2">
+              <FileText className="size-8 text-secondary-foreground" />
+            </div>
+            Treasure Chest
           </h2>
-          <p className="text-slate-400 font-medium tracking-tight truncate max-w-2xl italic opacity-60">
-             Centralized knowledge repository for <span className="text-primary font-bold">{classroom.name}</span>.
+          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider ml-1">
+             Collect your magic maps and secret scrolls for <span className="text-secondary font-black italic">{classroom.name}</span>!
           </p>
         </div>
         {user?.role === "TEACHER" && (
-          <button className={cn(buttonVariants(), "rounded-2xl h-11 px-6 font-black uppercase text-xs tracking-widest shadow-2xl shadow-primary/20 hover:scale-105 active:scale-100 transition-all gap-2")}>
-            <Plus className="size-4" />
-            Upload Protocol
+          <button className={cn(buttonVariants({ size: "lg" }), "rounded-[2rem] h-14 px-8 font-black uppercase italic tracking-widest shadow-[6px_6px_0px_0px_#B3125C] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bouncy-hover bg-secondary")}>
+            <Plus className="size-6 text-white" />
+            Hide New Treasure
           </button>
         )}
       </div>
 
-      <div className="flex items-center gap-4 mb-8 bg-slate-900/40 p-2 rounded-2xl border border-white/5 backdrop-blur-md">
+      <div className="flex items-center gap-4 mb-8 bg-white p-3 rounded-[2rem] border-4 border-muted sticker-shadow">
          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-500" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 size-6 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Search Knowledge Base..." 
-              className="w-full h-11 bg-transparent pl-11 pr-4 text-sm font-medium text-white placeholder:text-slate-600 focus:outline-none"
+              placeholder="Search Treasure Maps..." 
+              className="w-full h-12 bg-transparent pl-14 pr-6 text-lg font-bold text-foreground placeholder:text-slate-300 focus:outline-none"
             />
          </div>
-         <button className="h-11 px-4 rounded-xl border border-white/5 bg-white/5 text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-            <Filter className="size-3.5" /> Filter
+         <button className="h-12 px-6 rounded-2xl border-4 border-muted bg-muted/20 text-slate-500 hover:bg-muted/40 transition-all flex items-center gap-2 text-sm font-black uppercase tracking-widest bouncy-hover">
+            <Filter className="size-5" /> Filter
          </button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {classroom.materials.map((m: any) => (
-          <Card key={m.id} className="group overflow-hidden bg-slate-900/40 border-white/5 backdrop-blur-md hover:bg-slate-900/60 transition-all hover:border-primary/30 cursor-default">
-            <CardHeader className="p-6">
-              <div className="flex items-start justify-between">
-                 <div className="size-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <FileText className="size-6" />
-                 </div>
-                 <div className="flex items-center gap-1">
-                    <button className="p-2 text-slate-600 hover:text-white transition-colors">
-                       <Download className="size-4" />
-                    </button>
-                    {user?.role === "TEACHER" && (
-                      <button className="p-2 text-slate-600 hover:text-destructive transition-colors">
-                         <Trash2 className="size-4" />
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {classroom.materials.map((m: any, index: number) => {
+          const colors = [
+            { bg: "bg-blue-400/10", border: "border-blue-400", meta: "text-blue-600" },
+            { bg: "bg-pink-400/10", border: "border-pink-400", meta: "text-pink-600" },
+            { bg: "bg-green-400/10", border: "border-green-400", meta: "text-green-600" },
+            { bg: "bg-yellow-400/10", border: "border-yellow-400", meta: "text-yellow-600" },
+          ]
+          const color = colors[index % colors.length]
+          
+          return (
+            <Card key={m.id} className={cn("group overflow-hidden border-4 bg-white transition-all bouncy-hover sticker-shadow p-0 flex flex-col", color.border)}>
+              <CardHeader className="p-8">
+                <div className="flex items-start justify-between">
+                   <div className={cn("size-14 rounded-2xl border-4 flex items-center justify-center group-hover:rotate-12 transition-transform", color.bg, color.border)}>
+                      <FileText className={cn("size-8", color.meta)} />
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <button className="p-3 text-slate-300 hover:text-blue-500 transition-all bouncy-hover bg-muted/20 rounded-xl">
+                         <Download className="size-6" />
                       </button>
-                    )}
-                 </div>
-              </div>
-              <div className="mt-4 space-y-1">
-                 <CardTitle className="text-lg font-black text-white uppercase italic tracking-tight truncate">{m.title}</CardTitle>
-                 <CardDescription className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    {m.type || "Neural Document"} • {new Date(m.createdAt).toLocaleDateString()}
-                 </CardDescription>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
+                      {user?.role === "TEACHER" && (
+                        <button className="p-3 text-slate-300 hover:text-destructive transition-all bouncy-hover bg-muted/20 rounded-xl">
+                           <Trash2 className="size-6" />
+                        </button>
+                      )}
+                   </div>
+                </div>
+                <div className="mt-6 space-y-2">
+                   <CardTitle className="text-2xl font-black text-foreground uppercase italic tracking-tight truncate group-hover:text-primary transition-colors">{m.title}</CardTitle>
+                   <CardDescription className={cn("text-xs font-black uppercase tracking-widest flex items-center gap-2 italic", color.meta)}>
+                      {m.type || "Magic Map"} • {new Date(m.createdAt).toLocaleDateString()}
+                   </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          )
+        })}
         {classroom.materials.length === 0 && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-3xl bg-white/5">
-             <FileText className="size-16 text-slate-700 mb-4 opacity-20" />
-             <p className="text-slate-500 font-black uppercase tracking-widest text-sm italic">Knowledge Repository Empty</p>
+          <div className="col-span-full py-32 flex flex-col items-center justify-center border-4 border-dashed border-muted rounded-[3rem] bg-white/30 space-y-6">
+             <div className="p-8 bg-muted/20 rounded-full animate-bounce-subtle">
+                <FileText className="size-24 text-slate-300 opacity-50" />
+             </div>
+             <div className="text-center space-y-2">
+                <p className="text-2xl font-black uppercase tracking-tight text-slate-400 italic">No Treasures Hidden Yet</p>
+                <p className="text-slate-400 font-bold italic">Check back later for new scrolls!</p>
+             </div>
           </div>
         )}
       </div>

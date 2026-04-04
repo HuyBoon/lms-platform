@@ -43,28 +43,28 @@ export function QuizInteraction({ quiz, classId }: QuizInteractionProps) {
 
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in zoom-in duration-700">
-        <Card className="bg-slate-900/60 border-emerald-500/20 backdrop-blur-xl overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-8 opacity-5 scale-150 rotate-12">
-             <CheckCircle2 className="size-48 text-emerald-400" />
+      <div className="max-w-2xl mx-auto space-y-10 animate-in fade-in zoom-in duration-700">
+        <Card className="bg-white border-8 border-emerald-400 sticker-shadow overflow-hidden relative rounded-[3rem]">
+          <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 rotate-12">
+             <CheckCircle2 className="size-48 text-emerald-500" />
           </div>
-          <CardHeader className="text-center pt-12">
-             <div className="size-20 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="size-10 text-emerald-400" />
+          <CardHeader className="text-center pt-16">
+             <div className="size-24 bg-emerald-100 border-4 border-emerald-200 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce-subtle">
+                <CheckCircle2 className="size-12 text-emerald-500 stroke-[3]" />
              </div>
-             <CardTitle className="text-4xl font-black text-white uppercase italic tracking-tight">EVALUATION COMPLETE</CardTitle>
-             <p className="text-slate-400 font-medium uppercase tracking-[0.2em] text-xs mt-2">Neural Synchronization Hash Verified</p>
+             <CardTitle className="text-5xl font-black text-foreground uppercase italic tracking-tight underline decoration-emerald-400 decoration-8 underline-offset-8">QUEST ACCOMPLISHED!</CardTitle>
+             <p className="text-slate-500 font-bold uppercase tracking-widest text-sm mt-4 italic">You did an amazing job, Hero!</p>
           </CardHeader>
-          <CardContent className="text-center pb-12">
-             <div className="text-8xl font-black text-emerald-400 drop-shadow-[0_0_30px_rgba(52,211,153,0.3)] mb-2">
-                {result.score.toFixed(0)}<span className="text-4xl opacity-50">%</span>
+          <CardContent className="text-center pb-16">
+             <div className="text-9xl font-black text-emerald-500 drop-shadow-[0_0_30px_rgba(52,211,153,0.4)] mb-3 italic">
+                {result.score.toFixed(0)}<span className="text-4xl opacity-50 not-italic">%</span>
              </div>
-             <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Overall Sync Efficiency</p>
+             <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-sm">Your Final Magic Score</p>
           </CardContent>
-          <CardFooter className="flex justify-center pb-12">
+          <CardFooter className="flex justify-center pb-16">
              <Button 
                onClick={() => router.push(`/class/${classId}/student`)} 
-               className="rounded-2xl h-14 px-10 font-black uppercase text-xs tracking-widest shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500"
+               className="rounded-3xl h-16 px-12 font-black uppercase italic tracking-widest shadow-[8px_8px_0px_0px_#059669] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bg-emerald-500 hover:bg-emerald-400 text-white text-lg bouncy-hover"
              >
                 Return to Hub
              </Button>
@@ -75,76 +75,76 @@ export function QuizInteraction({ quiz, classId }: QuizInteractionProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-10">
       {/* Header Info */}
-      <div className="flex items-center justify-between bg-slate-900/40 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
-         <div className="space-y-1">
-            <h3 className="text-white font-black text-xl uppercase italic tracking-tight">{quiz.title}</h3>
-            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic opacity-60">ID: {quiz.id.slice(0, 10)}</p>
+      <div className="flex flex-col md:flex-row items-center justify-between bg-white p-8 rounded-[2.5rem] border-4 border-muted sticker-shadow gap-6">
+         <div className="space-y-2 text-center md:text-left">
+            <h3 className="text-foreground font-black text-3xl uppercase italic tracking-tight">{quiz.title}</h3>
+            <p className="text-slate-400 text-xs font-black uppercase tracking-widest italic">Mission # {quiz.id.slice(0, 8).toUpperCase()}</p>
          </div>
-         <div className="flex items-center gap-6">
-            <div className="flex flex-col items-end">
-               <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1">Time Elapsed</span>
-               <div className="flex items-center gap-2 text-primary font-black italic">
-                  <Timer className="size-4" />
-                  00:00:00
+         <div className="flex items-center gap-10">
+            <div className="flex flex-col items-center md:items-end">
+               <span className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1 italic">Quest Timer</span>
+               <div className="flex items-center gap-2 text-secondary font-black text-2xl italic">
+                  <Timer className="size-6" />
+                  00:00
                </div>
             </div>
-            <div className="h-10 w-px bg-white/5" />
-            <div className="flex flex-col items-end">
-               <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1">Completion</span>
-               <div className="flex items-center gap-2 text-white font-black italic">
-                  {currentIdx + 1} / {quiz.questions.length}
+            <div className="h-12 w-1 bg-muted rounded-full hidden md:block" />
+            <div className="flex flex-col items-center md:items-end">
+               <span className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1 italic">World Progress</span>
+               <div className="flex items-center gap-2 text-foreground font-black text-2xl italic">
+                  {currentIdx + 1} <span className="text-slate-300">/</span> {quiz.questions.length}
                </div>
             </div>
          </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-slate-900 rounded-full h-1.5 border border-white/5 relative overflow-hidden">
+      <div className="w-full bg-muted rounded-full h-4 border-4 border-white shadow-inner relative overflow-hidden">
          <div 
-           className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-500"
+           className="h-full bg-gradient-to-r from-primary via-secondary to-accent transition-all duration-1000 ease-out"
            style={{ width: `${progress}%` }}
          />
       </div>
 
       {/* Question Card */}
-      <Card className="bg-slate-900/40 border-white/5 backdrop-blur-md shadow-2xl min-h-[400px] flex flex-col justify-between overflow-hidden relative group">
-        <div className="absolute top-0 full left-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-           <GraduationCap className="size-64" />
+      <Card className="bg-white border-4 border-muted rounded-[3rem] sticker-shadow min-h-[450px] flex flex-col justify-between overflow-hidden relative group">
+        <div className="absolute -top-12 -left-12 p-12 opacity-5 group-hover:opacity-10 transition-opacity rotate-[-15deg] group-hover:rotate-0">
+           <GraduationCap className="size-80" />
         </div>
-        <CardHeader className="p-8 pt-10">
-           <div className="flex items-start gap-4">
-              <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-sm italic shrink-0">
+        <CardHeader className="p-10 pb-6 relative z-10">
+           <div className="flex items-start gap-6">
+              <div className="size-14 rounded-2xl bg-primary border-4 border-white shadow-md flex items-center justify-center text-primary-foreground font-black text-2xl italic shrink-0 rotate-[-8deg] group-hover:rotate-0 transition-transform">
                  {currentIdx + 1}
               </div>
-              <CardTitle className="text-2xl font-black text-white leading-tight uppercase italic tracking-tight">
+              <CardTitle className="text-3xl md:text-4xl font-black text-foreground leading-tight uppercase italic tracking-tight mt-1">
                  {currentQuestion.questionText}
               </CardTitle>
            </div>
         </CardHeader>
-        <CardContent className="px-8 pb-12">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="px-10 pb-16 relative z-10">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {currentQuestion.answers.map((answer: any) => (
                 <button
                   key={answer.id}
                   onClick={() => handleSelect(currentQuestion.id, answer.id)}
                   className={cn(
-                    "relative p-6 rounded-2xl border-2 text-left transition-all group overflow-hidden",
+                    "relative p-8 rounded-[2rem] border-4 text-left transition-all bouncy-hover overflow-hidden group/btn h-full flex items-center",
                     answers[currentQuestion.id] === answer.id 
-                    ? "bg-primary border-primary shadow-2xl shadow-primary/20 scale-[1.02]" 
-                    : "bg-slate-950/50 border-white/5 hover:border-primary/50 hover:bg-slate-900"
+                    ? "bg-primary border-primary shadow-[6px_6px_0px_0px_#B89600] active:shadow-none translate-y-[-4px]" 
+                    : "bg-white border-muted hover:border-primary/50 text-slate-500"
                   )}
                 >
                   <div className={cn(
-                    "absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-10 transition-opacity",
-                    answers[currentQuestion.id] === answer.id && "opacity-20"
+                    "absolute top-0 right-0 p-4 opacity-0 group-hover/btn:opacity-20 transition-opacity",
+                    answers[currentQuestion.id] === answer.id && "opacity-40"
                   )}>
-                     <Sparkles className="size-8" />
+                     <Sparkles className="size-10" />
                   </div>
                   <span className={cn(
-                    "text-base font-bold tracking-tight uppercase italic",
-                    answers[currentQuestion.id] === answer.id ? "text-white" : "text-slate-300"
+                    "text-xl font-black tracking-tight uppercase italic leading-tight",
+                    answers[currentQuestion.id] === answer.id ? "text-primary-foreground" : "text-slate-500 group-hover/btn:text-foreground"
                   )}>
                     {answer.answerText}
                   </span>
@@ -152,32 +152,32 @@ export function QuizInteraction({ quiz, classId }: QuizInteractionProps) {
               ))}
            </div>
         </CardContent>
-        <CardFooter className="px-8 py-6 border-t border-white/5 bg-slate-950/20 flex justify-between items-center">
+        <CardFooter className="px-10 py-8 border-t-4 border-dashed border-muted bg-muted/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <Button 
              variant="ghost" 
              disabled={currentIdx === 0}
              onClick={() => setCurrentIdx(currentIdx - 1)}
-             className="text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white"
+             className="text-slate-300 font-black uppercase text-xs tracking-[0.2em] hover:text-foreground bouncy-hover h-12 flex items-center gap-2"
            >
-              <ChevronLeft className="size-4 mr-2" /> Previous Directive
+              <ChevronLeft className="size-5" /> Go Back
            </Button>
            
            {isLastQuestion ? (
              <Button 
                onClick={handleSubmit}
                disabled={!answers[currentQuestion.id] || submitting}
-               className="rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500"
+               className="rounded-[2rem] h-16 px-12 font-black uppercase italic tracking-widest shadow-[8px_8px_0px_0px_#059669] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bg-emerald-500 hover:bg-emerald-400 text-white text-lg bouncy-hover"
              >
-                {submitting ? <Loader2 className="size-4 animate-spin mr-2" /> : <CheckCircle2 className="size-4 mr-2" />}
-                Finalize Protocol Sync
+                {submitting ? <Loader2 className="size-6 animate-spin mr-3" /> : <CheckCircle2 className="size-6 mr-3 stroke-[3]" />}
+                Finish Quest!
              </Button>
            ) : (
              <Button 
                onClick={() => setCurrentIdx(currentIdx + 1)}
                disabled={!answers[currentQuestion.id]}
-               className="rounded-2xl h-12 px-8 font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl shadow-primary/20"
+               className="rounded-[2rem] h-16 px-12 font-black uppercase italic tracking-widest shadow-[8px_8px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bg-primary hover:bg-primary/90 text-primary-foreground text-lg bouncy-hover flex items-center gap-3"
              >
-                Continue <ChevronRight className="size-4 ml-2" />
+                Next Level <ChevronRight className="size-6 stroke-[3]" />
              </Button>
            )}
         </CardFooter>

@@ -11,18 +11,23 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="z-10 w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20 shadow-2xl shadow-primary/20 backdrop-blur-sm">
-          <GraduationCap className="size-10 text-primary" />
+    <div className="z-10 w-full max-w-md space-y-10 animate-in fade-in zoom-in-95 duration-1000 relative">
+      <div className="absolute -top-10 -left-10 size-32 bg-primary/20 rounded-full blur-3xl animate-bounce-subtle" />
+      <div className="absolute -bottom-10 -right-10 size-32 bg-secondary/20 rounded-full blur-3xl animate-bounce-subtle delay-700" />
+      
+      <div className="flex flex-col items-center text-center space-y-6 relative z-10">
+        <div className="p-4 bg-primary rounded-[2rem] shadow-2xl rotate-3 animate-bounce-subtle">
+          <GraduationCap className="size-12 text-primary-foreground" />
         </div>
-        <div className="space-y-1.5">
-          <h1 className="text-4xl font-black tracking-tight text-white uppercase italic">HUYBOON ACADEMY</h1>
-          <p className="text-slate-400 font-medium text-sm tracking-widest uppercase">High-Performance Neural Network Learning</p>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-black tracking-tight text-foreground uppercase italic underline decoration-primary decoration-4 underline-offset-4">HUYBOON PLAYHUB</h1>
+          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider">Welcome Back, Hero!</p>
         </div>
       </div>
       
-      <LoginForm />
+      <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border-4 border-white sticker-shadow">
+        <LoginForm />
+      </div>
     </div>
   )
 }

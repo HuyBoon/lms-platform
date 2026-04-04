@@ -28,11 +28,11 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full border-none bg-slate-900/60 backdrop-blur-xl shadow-2xl">
-      <CardHeader className="space-y-1 pt-8 px-8">
-        <CardTitle className="text-2xl font-black tracking-tight text-white text-center">Identity Verification</CardTitle>
-        <CardDescription className="text-slate-400 font-medium text-center italic">
-          Authorized personnel only. Secure access required.
+    <Card className="w-full border-none bg-white p-2 rounded-[2.5rem] shadow-xl sticker-shadow transition-all">
+      <CardHeader className="space-y-2 pt-8 px-8 text-center">
+        <CardTitle className="text-3xl font-black tracking-tight text-foreground uppercase italic underline decoration-primary decoration-4 underline-offset-4">Time to Play!</CardTitle>
+        <CardDescription className="text-slate-500 font-bold italic text-lg uppercase tracking-wider">
+          Jump back into your adventure!
         </CardDescription>
       </CardHeader>
       
@@ -40,11 +40,11 @@ export function LoginForm() {
         {/* Social Provider */}
         <Button 
           variant="outline" 
-          className="w-full h-12 rounded-xl bg-slate-950/50 border-white/5 hover:bg-white/5 transition-all gap-3 text-slate-300 font-bold" 
+          className="w-full h-14 rounded-2xl border-4 border-muted hover:border-primary hover:bg-primary/5 transition-all gap-3 text-foreground font-black uppercase italic tracking-widest bouncy-hover" 
           onClick={handleGoogleLogin}
           type="button"
         >
-          <svg className="size-5" viewBox="0 0 24 24">
+          <svg className="size-6" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -62,43 +62,43 @@ export function LoginForm() {
               fill="#EA4335"
             />
           </svg>
-          HuyBoon OAuth
+          Magic Login
         </Button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-white/5" />
+            <span className="w-full border-t-4 border-muted/50 border-dashed" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-600">
-            <span className="bg-slate-900 px-3 py-1 rounded-full border border-white/5">Internal Credentials</span>
+          <div className="relative flex justify-center text-xs uppercase tracking-[0.3em] font-black text-slate-400">
+            <span className="bg-white px-6">OR USE KEY</span>
           </div>
         </div>
 
-        <form action={onSubmit} className="space-y-5">
+        <form action={onSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Universal ID (Email)</label>
+              <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Secret Email</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                 <Input 
                   name="email" 
                   type="email" 
-                  placeholder="admin@huyboon.com" 
+                  placeholder="hero@playhub.com" 
                   required 
-                  className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl pl-11 pr-4 text-white font-medium" 
+                  className="pl-12" 
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Access Protocol (Password)</label>
+              <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Hidden Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                 <Input 
                   name="password" 
                   type="password" 
                   placeholder="••••••••" 
                   required 
-                  className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl pl-11 pr-4 text-white font-medium" 
+                  className="pl-12" 
                 />
               </div>
             </div>
@@ -107,19 +107,19 @@ export function LoginForm() {
           <Button 
             type="submit" 
             disabled={loading}
-            className="w-full h-12 rounded-xl font-black text-sm tracking-widest uppercase gap-2 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-100 mt-2"
+            className="w-full h-16 rounded-2xl text-xl font-black italic uppercase bouncy-hover"
           >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : "Authenticate"}
-            {!loading && <ArrowRight className="size-4" />}
+            {loading ? <Loader2 className="size-6 animate-spin" /> : "Let's Go!"}
+            {!loading && <ArrowRight className="size-6" />}
           </Button>
         </form>
       </CardContent>
 
       <CardFooter className="pb-8 px-8 flex flex-col items-center">
-        <p className="text-sm text-slate-500 font-medium">
-          First time here?{" "}
-          <Link href="/register" className="text-primary font-bold hover:underline underline-offset-4">
-            Initialize Access
+        <p className="text-lg font-bold text-slate-500 italic">
+          New here?{" "}
+          <Link href="/register" className="text-secondary font-black hover:underline underline-offset-8">
+            Create Hero
           </Link>
         </p>
       </CardFooter>

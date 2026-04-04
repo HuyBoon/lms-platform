@@ -37,74 +37,80 @@ export default async function StudentClassDashboard({
     }
   })
 
-  if (!classroom) return <div className="p-8 text-center text-slate-500 font-black uppercase italic">Neural Sync Failed</div>
+  if (!classroom) return <div className="p-8 text-center text-slate-500 font-black uppercase italic">Sync Failed</div>
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-emerald-400 font-black text-xs uppercase tracking-widest bg-emerald-500/5 px-3 py-1 rounded-full border border-emerald-500/10 w-fit">
-             <Star className="size-3 fill-emerald-400" /> STUDENT ACCESS
+    <div className="flex-1 space-y-10 p-10 pt-8 bg-background/50">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full border-2 border-primary/20 w-fit italic">
+             <Star className="size-4 fill-primary" /> HERO MODE ON
           </div>
-          <h2 className="text-4xl font-black tracking-tight text-white uppercase italic truncate max-w-xl">
+          <h2 className="text-5xl font-black tracking-tight text-foreground uppercase italic truncate max-w-2xl underline decoration-secondary decoration-8 underline-offset-8">
             {classroom.name}
           </h2>
-          <p className="text-slate-400 font-medium tracking-tight truncate max-w-2xl italic opacity-60">
-            {classroom.description || "Active academic journey in progress."}
+          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider ml-1">
+            {classroom.description || "Welcome to your next big learning adventure!"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-           <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline" }), "rounded-2xl border-white/5 bg-white/5 backdrop-blur-sm font-bold text-xs uppercase tracking-widest gap-2")}>
-             <Trophy className="size-4 text-amber-500" /> Rank #0
+        <div className="flex items-center gap-4">
+           <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-3xl border-4 border-yellow-400 bg-white text-yellow-600 font-black italic uppercase tracking-widest gap-2 bouncy-hover")}>
+             <Trophy className="size-6 text-yellow-500" /> Rank #0
            </Link>
-           <Link href={`/class/${classId}/materials`} className={cn(buttonVariants(), "rounded-2xl h-11 px-6 font-black uppercase text-xs tracking-widest shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 transition-all")}>
+           <Link href={`/class/${classId}/materials`} className={cn(buttonVariants({ size: "lg" }), "rounded-[2rem] h-14 px-8 font-black uppercase italic tracking-widest shadow-[6px_6px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bouncy-hover bg-primary")}>
              Study Hub
            </Link>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-7">
-        <div className="col-span-4 space-y-6">
-           <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-black uppercase text-slate-500 tracking-[0.3em]">Module Stream</h3>
-              <span className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-1 rounded-full border border-primary/10">{classroom.quizzes.length} Active Directives</span>
+      <div className="grid gap-10 lg:grid-cols-7">
+        <div className="col-span-4 space-y-8">
+           <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic">Quest Log</h3>
+              <span className="text-xs font-black uppercase text-secondary tracking-widest bg-secondary/10 px-4 py-2 rounded-full border-2 border-secondary/20">{classroom.quizzes.length} Missions Ready</span>
            </div>
 
-           <div className="grid gap-4">
+           <div className="grid gap-6">
               {classroom.quizzes.map((quiz: any) => {
                 const isCompleted = quiz.submissions.length > 0;
                 return (
-                  <Card key={quiz.id} className={cn("overflow-hidden border-none shadow-xl transition-all group", isCompleted ? "bg-emerald-500/5" : "bg-slate-900/40 backdrop-blur-md border border-white/5")}>
-                    <CardHeader className="p-6">
-                       <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-1">
+                  <Card key={quiz.id} className={cn(
+                    "overflow-hidden border-4 transition-all bouncy-hover sticker-shadow flex flex-col",
+                    isCompleted ? "border-emerald-400 bg-emerald-50/50" : "border-muted bg-white"
+                  )}>
+                    <CardHeader className="p-8">
+                       <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest italic">
                                {isCompleted ? (
-                                 <span className="text-emerald-400">STATUS: VERIFIED</span>
+                                 <span className="text-emerald-500 flex items-center gap-1.5"><Trophy className="size-4" /> Mission Accomplished!</span>
                                ) : (
-                                 <span className="text-amber-400">STATUS: INITIALIZING</span>
+                                 <span className="text-amber-500">New Mission Available!</span>
                                )}
                             </div>
-                            <CardTitle className="text-xl font-black text-white group-hover:text-primary transition-colors tracking-tight uppercase italic">{quiz.title}</CardTitle>
+                            <CardTitle className="text-3xl font-black text-foreground tracking-tight uppercase italic">{quiz.title}</CardTitle>
                           </div>
                           {!isCompleted && (
-                            <Link href={`/class/${classId}/quizzes/${quiz.id}`} className={cn(buttonVariants({ size: "sm" }), "rounded-xl h-10 px-4 font-black text-[10px] tracking-widest uppercase gap-2")}>
-                               Execute <ArrowRight className="size-3" />
+                            <Link href={`/class/${classId}/quizzes/${quiz.id}`} className={cn(buttonVariants({ size: "lg" }), "rounded-2xl h-14 px-8 font-black italic tracking-widest uppercase gap-3 bouncy-hover")}>
+                              Start Quest! <ArrowRight className="size-5" />
                             </Link>
                           )}
                        </div>
                     </CardHeader>
-                    <CardContent className="px-6 pb-6 pt-0 flex items-center justify-between border-t border-white/5 mt-2 pt-4">
-                       <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
-                             <Clock className="size-3.5" /> 20m Duration
+                    <CardContent className={cn(
+                      "px-8 py-5 flex items-center justify-between border-t-4 border-dashed",
+                      isCompleted ? "border-emerald-400/30 bg-emerald-100/20" : "border-muted bg-muted/20"
+                    )}>
+                       <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-2 text-sm font-black text-slate-500 italic">
+                             <Clock className="size-5 text-blue-400" /> 20m Fun
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
-                             <BarChart3 className="size-3.5" /> Hardness: Neural
+                          <div className="flex items-center gap-2 text-sm font-black text-slate-500 italic">
+                             <Star className="size-5 text-yellow-400 fill-yellow-400" /> Super Easy
                           </div>
                        </div>
                        {isCompleted && (
-                         <div className="text-emerald-400 font-black text-sm uppercase italic tracking-widest">
+                         <div className="text-emerald-500 font-black text-xl uppercase italic tracking-widest bg-white px-4 py-2 rounded-2xl border-2 border-emerald-400 shadow-sm">
                             SCORE: {quiz.submissions[0].score}%
                          </div>
                        )}
@@ -115,39 +121,41 @@ export default async function StudentClassDashboard({
            </div>
         </div>
 
-        <div className="col-span-3 space-y-6">
-           <h3 className="text-xs font-black uppercase text-slate-500 tracking-[0.3em]">Knowledge Resources</h3>
-           <div className="space-y-3">
-              {classroom.materials.map((m: any) => (
-                <div key={m.id} className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-pointer flex items-center gap-4">
-                   <div className="size-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                      <FileText className="size-5" />
+        <div className="col-span-3 space-y-10">
+           <div className="space-y-4">
+              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic text-right">Treasure Maps</h3>
+              <div className="space-y-4">
+                 {classroom.materials.map((m: any) => (
+                   <div key={m.id} className="group p-6 rounded-3xl bg-white border-4 border-muted hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-5 sticker-shadow active:scale-95">
+                      <div className="size-12 rounded-2xl bg-blue-100 border-2 border-blue-200 flex items-center justify-center text-blue-500 group-hover:rotate-12 transition-transform">
+                         <FileText className="size-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                         <p className="text-foreground text-lg font-black tracking-tight truncate uppercase italic">{m.title}</p>
+                         <p className="text-slate-400 text-xs font-black uppercase tracking-widest italic">Secret Intel Attached</p>
+                      </div>
+                      <ArrowRight className="size-5 text-slate-300 group-hover:text-blue-500 transition-colors" />
                    </div>
-                   <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-bold tracking-tight truncate uppercase italic">{m.title}</p>
-                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Protocol: Optimized</p>
+                 ))}
+                 {classroom.materials.length === 0 && (
+                   <div className="p-16 text-center border-4 border-dashed border-muted rounded-[2rem] bg-white/30">
+                      <p className="text-slate-400 font-black uppercase tracking-widest text-sm italic opacity-60">No Maps Found Yet</p>
                    </div>
-                   <ArrowRight className="size-4 text-slate-700 group-hover:text-blue-400 transition-colors" />
-                </div>
-              ))}
-              {classroom.materials.length === 0 && (
-                <div className="p-10 text-center border-2 border-dashed border-white/5 rounded-3xl">
-                   <p className="text-slate-600 font-black uppercase tracking-widest text-xs opacity-50 italic">Storage Empty</p>
-                </div>
-              )}
+                 )}
+              </div>
            </div>
 
-           <Card className="bg-gradient-to-br from-primary/20 to-blue-600/20 border-white/10 backdrop-blur-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
-                 <Trophy className="size-32" />
+           <Card className="bg-gradient-to-br from-yellow-400 via-pink-400 to-blue-400 p-1 border-none sticker-shadow group relative overflow-hidden rounded-[2.5rem]">
+              <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity rotate-12 group-hover:scale-125">
+                 <Trophy className="size-32 text-white" />
               </div>
-              <CardHeader>
-                 <CardTitle className="text-xl font-black text-white uppercase italic tracking-tight">Academic Ranking</CardTitle>
-                 <CardDescription className="text-slate-300 opacity-60 font-medium">Evaluate your position in the class environment.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline" }), "w-full border-white/10 bg-white/5 hover:bg-white/10 text-white font-black text-xs tracking-widest uppercase rounded-xl")}>
-                    View Stats Protocol
+              <CardContent className="bg-white m-1 rounded-[2rem] p-8 space-y-6 relative z-10 text-center">
+                 <div className="space-y-2">
+                    <CardTitle className="text-3xl font-black text-foreground uppercase italic tracking-tight">Trophy Room</CardTitle>
+                    <CardDescription className="text-slate-500 font-bold italic text-base">Check how you compare to other Heroes!</CardDescription>
+                 </div>
+                 <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full border-4 border-secondary text-secondary font-black italic uppercase tracking-widest rounded-2xl bouncy-hover h-14")}>
+                    View Rankings
                  </Link>
               </CardContent>
            </Card>

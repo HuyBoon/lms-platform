@@ -25,18 +25,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card className="w-full max-w-lg border-none bg-slate-900/40 backdrop-blur-xl shadow-2xl animate-in fade-in zoom-in duration-500">
-      <CardHeader className="space-y-4 pt-10 px-10">
-        <div className="flex items-center gap-2 group justify-center border-b border-white/5 pb-6">
-          <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 group-hover:scale-110 transition-transform">
-            <GraduationCap className="size-6 text-primary" />
+    <Card className="w-full max-w-lg border-none bg-white p-2 rounded-[2.5rem] shadow-xl sticker-shadow transition-all animate-in fade-in zoom-in duration-500">
+      <CardHeader className="space-y-4 pt-10 px-10 text-center">
+        <div className="flex items-center gap-3 group justify-center border-b-4 border-muted/50 border-dashed pb-8">
+          <div className="p-3 bg-primary rounded-2xl shadow-lg rotate-3 group-hover:rotate-12 transition-transform">
+            <GraduationCap className="size-8 text-primary-foreground" />
           </div>
-          <span className="text-2xl font-black tracking-tighter text-white">HUYBOON</span>
+          <span className="text-3xl font-black tracking-tight text-foreground uppercase italic">HUYBOON <span className="text-primary font-black">PLAYHUB</span></span>
         </div>
-        <div className="text-center space-y-1.5 pt-4">
-          <CardTitle className="text-3xl font-black tracking-tight text-white uppercase italic">ACCESS INITIALIZATION</CardTitle>
-          <CardDescription className="text-slate-400 font-bold text-sm tracking-wide uppercase">
-            Configure your academic parameters
+        <div className="space-y-2 pt-4">
+          <CardTitle className="text-4xl font-black tracking-tight text-foreground uppercase italic underline decoration-secondary decoration-4 underline-offset-4">Hero Discovery!</CardTitle>
+          <CardDescription className="text-slate-500 font-bold text-lg italic uppercase tracking-wider">
+            Choose your path to start the fun
           </CardDescription>
         </div>
       </CardHeader>
@@ -44,64 +44,64 @@ export default function RegisterPage() {
       <CardContent className="px-10 pb-8">
         <form action={onSubmit} className="space-y-8">
           {/* Role Selection */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 ml-1">Environment Protocol</label>
-            <div className="grid grid-cols-2 gap-4 p-1.5 bg-slate-950/50 rounded-2xl border border-white/5">
+          <div className="space-y-4">
+            <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Who are you?</label>
+            <div className="grid grid-cols-2 gap-4 p-2 bg-muted/30 rounded-3xl border-4 border-muted">
               <button
                 type="button"
                 onClick={() => setRole("STUDENT")}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${
+                className={`flex items-center justify-center gap-3 py-4 rounded-2xl transition-all font-black text-sm uppercase italic tracking-widest bouncy-hover ${
                   role === "STUDENT" 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105" 
-                  : "text-slate-500 hover:text-slate-300"
+                  ? "bg-primary text-primary-foreground shadow-lg scale-105" 
+                  : "text-slate-400 hover:text-slate-600"
                 }`}
               >
-                <User className="size-4" />
-                Student
+                <User className="size-5" />
+                Student Hero
               </button>
               <button
                 type="button"
                 onClick={() => setRole("TEACHER")}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${
+                className={`flex items-center justify-center gap-3 py-4 rounded-2xl transition-all font-black text-sm uppercase italic tracking-widest bouncy-hover ${
                   role === "TEACHER" 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105" 
-                  : "text-slate-500 hover:text-slate-300"
+                  ? "bg-secondary text-secondary-foreground shadow-lg scale-105" 
+                  : "text-slate-400 hover:text-slate-600"
                 }`}
               >
-                <ShieldCheck className="size-4" />
-                Teacher
+                <ShieldCheck className="size-5" />
+                Master Sage
               </button>
             </div>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Universal Identifier</label>
+              <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Hero Name</label>
               <Input 
                 name="name" 
-                placeholder="Huy Boon" 
+                placeholder="What should we call you?" 
                 required 
-                className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl px-4 text-white font-medium placeholder:opacity-40" 
+                className="h-14" 
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Neural Sync Access (Email)</label>
+              <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Magic Email</label>
               <Input 
                 name="email" 
                 type="email" 
-                placeholder="dev@huyboon.com" 
+                placeholder="hero@playhub.com" 
                 required 
-                className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl px-4 text-white font-medium placeholder:opacity-40" 
+                className="h-14" 
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Encryption Sequence</label>
+              <label className="text-sm font-black uppercase tracking-widest text-slate-500 ml-2 italic">Secret Key</label>
               <Input 
                 name="password" 
                 type="password" 
                 placeholder="••••••••" 
                 required 
-                className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl px-4 text-white font-medium placeholder:opacity-40" 
+                className="h-14" 
               />
             </div>
           </div>
@@ -109,19 +109,19 @@ export default function RegisterPage() {
           <Button 
             type="submit" 
             disabled={loading}
-            className="w-full h-14 rounded-2xl font-black text-xs tracking-[0.2em] uppercase gap-3 shadow-2xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-100"
+            className="w-full h-16 rounded-2xl text-xl font-black italic uppercase bouncy-hover"
           >
-            {loading ? <Loader2 className="size-5 animate-spin" /> : "ENGAGE SYSTEM"}
-            {!loading && <ArrowRight className="size-5" />}
+            {loading ? <Loader2 className="size-6 animate-spin" /> : "Start My Mission!"}
+            {!loading && <ArrowRight className="size-6" />}
           </Button>
         </form>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-4 pb-10 px-10 border-t border-white/5 pt-6 bg-slate-950/5 text-center">
-        <p className="text-sm text-slate-500 font-medium">
-          Already verified?{" "}
-          <Link href="/login" className="text-primary font-bold hover:underline underline-offset-4 tracking-tight">
-            Access Vault
+      <CardFooter className="flex flex-col gap-4 pb-10 px-10 border-t-4 border-muted/50 border-dashed pt-8 text-center">
+        <p className="text-lg font-bold text-slate-500 italic">
+          Already a hero?{" "}
+          <Link href="/login" className="text-primary font-black hover:underline underline-offset-8">
+            Enter Playroom
           </Link>
         </p>
       </CardFooter>

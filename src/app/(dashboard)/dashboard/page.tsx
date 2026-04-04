@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, GraduationCap, Plus, Users, LayoutDashboard } from "lucide-react"
+import { BookOpen, GraduationCap, Plus, Users, LayoutDashboard, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { cn } from "@/lib/utils"
@@ -23,67 +23,99 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="flex-1 space-y-8 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-black tracking-tight uppercase italic text-white flex items-center gap-3">
-            <LayoutDashboard className="size-8 text-primary" />
-            Control Center
+    <div className="flex-1 space-y-10 p-10 pt-8 bg-background/50">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight uppercase italic text-foreground flex items-center gap-4">
+            <div className="p-3 bg-primary rounded-2xl shadow-lg border-4 border-white rotate-2">
+              <LayoutDashboard className="size-8 text-primary-foreground" />
+            </div>
+            Adventure Hub
           </h2>
-          <p className="text-slate-400 font-medium tracking-wide first-letter:uppercase">
-            Welcome back, <span className="text-primary font-bold">{user?.name}</span>. Protocol initialized.
+          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider ml-1">
+            Hi <span className="text-primary font-black italic">{user?.name}</span>! Ready for your next <span className="text-secondary italic">Super Mission?</span>
           </p>
         </div>
         {user?.role === "TEACHER" && (
-          <Link href="/class/create" className={cn(buttonVariants(), "rounded-2xl h-12 px-6 font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-105 active:scale-100 transition-all gap-2")}>
-            <Plus className="size-4" />
-            Initialize Class
+          <Link href="/class/create" className={cn(buttonVariants({ size: "lg" }), "bouncy-hover italic shadow-[6px_6px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]")}>
+            <Plus className="size-6" />
+            Create New World
           </Link>
         )}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {classes.map((cls: any) => (
-          <Link key={cls.id} href={`/class/${cls.id}/${user?.role === "TEACHER" ? "teacher" : "student"}`}>
-            <Card className="group relative overflow-hidden bg-slate-900/40 border-white/5 backdrop-blur-md hover:bg-slate-900/60 transition-all hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/10 cursor-pointer h-full">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                <GraduationCap className="size-24" />
-              </div>
-              <CardHeader>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 bg-primary/10 rounded-xl border border-primary/20 text-primary">
-                    <BookOpen className="size-5" />
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
-                    ID: {cls.id.slice(0, 8)}
-                  </span>
+      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {classes.map((cls: any, index: number) => {
+          const colors = [
+            { bg: "bg-yellow-400/10", border: "border-yellow-400", meta: "text-yellow-600", shadow: "shadow-yellow-400/20" },
+            { bg: "bg-blue-400/10", border: "border-blue-400", meta: "text-blue-600", shadow: "shadow-blue-400/20" },
+            { bg: "bg-pink-400/10", border: "border-pink-400", meta: "text-pink-600", shadow: "shadow-pink-400/20" },
+            { bg: "bg-green-400/10", border: "border-green-400", meta: "text-green-600", shadow: "shadow-green-400/20" },
+          ]
+          const color = colors[index % colors.length]
+          
+          return (
+            <Link key={cls.id} href={`/class/${cls.id}/${user?.role === "TEACHER" ? "teacher" : "student"}`}>
+              <Card className={cn(
+                "group relative overflow-hidden border-4 bg-white transition-all bouncy-hover sticker-shadow h-full p-0 flex flex-col",
+                color.border
+              )}>
+                <div className={cn("absolute -top-6 -right-6 p-6 opacity-10 group-hover:opacity-20 transition-all rotate-12 group-hover:rotate-45", color.meta)}>
+                  <GraduationCap className="size-32" />
                 </div>
-                <CardTitle className="text-xl font-black text-white group-hover:text-primary transition-colors tracking-tight uppercase italic truncate">
-                  {cls.name}
-                </CardTitle>
-                <CardDescription className="text-slate-400 font-medium line-clamp-2 mt-1">
-                  {cls.description || "Academic neural-network focused learning environment."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-4 border-t border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
-                    <Users className="size-3.5 text-blue-400" />
-                    {cls._count.enrollments} <span className="text-slate-500 uppercase tracking-tighter">Students</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
-                    <Plus className="size-3.5 text-emerald-400 rotate-45" />
-                    {cls._count.quizzes} <span className="text-slate-500 uppercase tracking-tighter">Modules</span>
-                  </div>
+                
+                <div className={cn("h-32 w-full flex items-center justify-center relative overflow-hidden", color.bg)}>
+                   <BookOpen className={cn("size-16 opacity-40 group-hover:scale-125 transition-transform", color.meta)} />
+                   <div className="absolute top-4 left-4">
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-white text-slate-500 shadow-sm">
+                        LVL: {cls.id.slice(0, 4).toUpperCase()}
+                      </span>
+                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+
+                <CardHeader className="p-6 space-y-2 flex-grow">
+                  <CardTitle className="text-2xl font-black text-foreground group-hover:text-primary transition-colors tracking-tight uppercase italic truncate">
+                    {cls.name}
+                  </CardTitle>
+                  <CardDescription className="text-slate-500 font-bold italic line-clamp-2 mt-1 lowercase first-letter:uppercase">
+                    {cls.description || "Start your amazing journey in this learning world!"}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className={cn("p-6 pt-4 border-t-4 border-dashed flex items-center justify-between", color.bg, color.border.replace('border-', 'border-t-'))}>
+                  <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-start">
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Explorers</span>
+                      <div className="flex items-center gap-1.5 font-black text-foreground">
+                        <Users className="size-4 text-blue-500" />
+                        {cls._count.enrollments}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Quests</span>
+                      <div className="flex items-center gap-1.5 font-black text-foreground">
+                        <Plus className="size-4 text-emerald-500 rotate-45" />
+                        {cls._count.quizzes}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-white rounded-xl shadow-sm border-2 border-muted group-hover:rotate-12 transition-transform">
+                     <ArrowRight className={cn("size-6", color.meta)} />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          )
+        })}
         {classes.length === 0 && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-3xl bg-white/5">
-             <LayoutDashboard className="size-16 text-slate-700 mb-4 opacity-20" />
-             <p className="text-slate-500 font-black uppercase tracking-widest text-sm italic">No active environments found</p>
+          <div className="col-span-full py-32 flex flex-col items-center justify-center border-4 border-dashed border-muted rounded-[3rem] bg-white/30 space-y-6">
+             <div className="p-8 bg-muted/20 rounded-full animate-bounce-subtle">
+                <LayoutDashboard className="size-24 text-slate-300 opacity-50" />
+             </div>
+             <div className="text-center space-y-2">
+                <p className="text-2xl font-black uppercase tracking-tight text-slate-400 italic">No Active Missions Found</p>
+                <p className="text-slate-400 font-bold italic">Wait for your Sage to invite you to a World!</p>
+             </div>
           </div>
         )}
       </div>
