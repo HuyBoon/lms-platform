@@ -2,41 +2,23 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { loginUser } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github } from 'lucide-react'
+import { ArrowRight, Loader2, Mail, Lock } from 'lucide-react'
+import Link from 'next/link'
+import { toast } from 'sonner'
 
 export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
-  const handleCredentialsLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+  async function onSubmit(formData: FormData) {
     setLoading(true)
-    setError(null)
-
-    try {
-      const res = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (res?.error) {
-        setError("Invalid email or password")
-        setLoading(false)
-      } else {
-        router.push('/')
-        router.refresh()
-      }
-    } catch (err) {
-      setError("An unexpected error occurred")
+    const result = await loginUser(formData)
+    
+    if (result?.error) {
+      toast.error(result.error)
       setLoading(false)
     }
   }
@@ -46,19 +28,23 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Welcome back to the Classroom System</CardDescription>
+    <Card className="w-full border-none bg-slate-900/60 backdrop-blur-xl shadow-2xl">
+      <CardHeader className="space-y-1 pt-8 px-8">
+        <CardTitle className="text-2xl font-black tracking-tight text-white text-center">Identity Verification</CardTitle>
+        <CardDescription className="text-slate-400 font-medium text-center italic">
+          Authorized personnel only. Secure access required.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      
+      <CardContent className="px-8 space-y-6 pb-6">
+        {/* Social Provider */}
         <Button 
           variant="outline" 
-          className="w-full gap-2" 
+          className="w-full h-12 rounded-xl bg-slate-950/50 border-white/5 hover:bg-white/5 transition-all gap-3 text-slate-300 font-bold" 
           onClick={handleGoogleLogin}
           type="button"
         >
-          <svg className="size-4" viewBox="0 0 24 24">
+          <svg className="size-5" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -76,50 +62,65 @@ export function LoginForm() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          HuyBoon OAuth
         </Button>
+
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-white/5" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+          <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-600">
+            <span className="bg-slate-900 px-3 py-1 rounded-full border border-white/5">Internal Credentials</span>
           </div>
         </div>
-        <form onSubmit={handleCredentialsLogin} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="m@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
+
+        <form action={onSubmit} className="space-y-5">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Universal ID (Email)</label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                <Input 
+                  name="email" 
+                  type="email" 
+                  placeholder="admin@huyboon.com" 
+                  required 
+                  className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl pl-11 pr-4 text-white font-medium" 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Access Protocol (Password)</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                <Input 
+                  name="password" 
+                  type="password" 
+                  placeholder="••••••••" 
+                  required 
+                  className="h-12 bg-slate-950/50 border-white/5 focus:border-primary/50 focus:ring-primary/20 rounded-xl pl-11 pr-4 text-white font-medium" 
+                />
+              </div>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+
+          <Button 
+            type="submit" 
+            disabled={loading}
+            className="w-full h-12 rounded-xl font-black text-sm tracking-widest uppercase gap-2 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-100 mt-2"
+          >
+            {loading ? <Loader2 className="size-4 animate-spin" /> : "Authenticate"}
+            {!loading && <ArrowRight className="size-4" />}
           </Button>
         </form>
       </CardContent>
-      <CardFooter>
-        <p className="text-sm text-center w-full">
-          Don't have an account?{' '}
-          <a href="/register" className="text-primary hover:underline">
-            Sign Up
-          </a>
+
+      <CardFooter className="pb-8 px-8 flex flex-col items-center">
+        <p className="text-sm text-slate-500 font-medium">
+          First time here?{" "}
+          <Link href="/register" className="text-primary font-bold hover:underline underline-offset-4">
+            Initialize Access
+          </Link>
         </p>
       </CardFooter>
     </Card>
