@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server"
-import { Users, ClipboardCheck, TrendingUp, UserCheck } from "lucide-react"
+import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
+import { Users, ClipboardCheck, TrendingUp } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -11,74 +12,43 @@ export default async function TeacherDashboardPage({
   params: { classId: string }
 }) {
   const { classId } = await params
-  const supabase = await createClient()
+  const session = await auth()
+  const user = session?.user
 
-  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return notFound()
 
-  // Verify if teacher owns this class
-  const { data: cls } = await supabase
-    .from('classes')
-    .select('teacher_id')
-    .eq('id', classId)
-    .single()
+  // Verify if teacher owns this class using Prisma
+  const cls = await prisma.class.findUnique({
+    where: { id: classId },
+    select: { teacherId: true }
+  })
 
-  if (!cls || cls.teacher_id !== user.id) {
-    // In a production app, redirect or show message
-  }
+  // In production, you would handle this more strictly
+  if (!cls) return notFound()
 
   // Fetch all submissions for quizzes in this class
-  const { data: submissions } = await supabase
-    .from('submissions')
-    .select(`
-      *,
-      student:student_id (
-        email,
-        full_name
-      ),
-      quiz:quiz_id (
-        title
-      )
-    `)
-    .eq('quiz_id', (
-      supabase
-        .from('quizzes')
-        .select('id')
-        .eq('class_id', classId)
-    ))
-  
-  // Alternative fetch if the nested subquery is complex
-  const { data: quizIds } = await supabase
-    .from('quizzes')
-    .select('id')
-    .eq('class_id', classId)
-  
-  const idArray = quizIds?.map(q => q.id) || []
+  const allSubmissions = await prisma.submission.findMany({
+    where: {
+      quiz: { classId: classId }
+    },
+    include: {
+      student: {
+        select: { name: true, email: true }
+      },
+      quiz: {
+        select: { title: true }
+      }
+    },
+    orderBy: { submittedAt: 'desc' }
+  })
 
-  const { data: allSubmissions } = await supabase
-    .from('submissions')
-    .select(`
-      *,
-      student:student_id (
-        email,
-        full_name
-      ),
-      quiz:quiz_id (
-        title
-      )
-    `)
-    .in('quiz_id', idArray)
+  const totalStudents = await prisma.enrollment.count({
+    where: { classId: classId }
+  })
 
-  const { data: enrollments } = await supabase
-    .from('enrollments')
-    .select('count')
-    .eq('class_id', classId)
-    .single()
-
-  const totalStudents = enrollments?.count || 0
-  const totalSubmissions = allSubmissions?.length || 0
-  const avgScore = allSubmissions?.length 
-    ? (allSubmissions.reduce((acc, curr) => acc + (curr.score / curr.total_points), 0) / allSubmissions.length * 100).toFixed(1)
+  const totalSubmissions = allSubmissions.length
+  const avgScore = allSubmissions.length 
+    ? (allSubmissions.reduce((acc, curr) => acc + (curr.score / curr.totalPoints), 0) / allSubmissions.length * 100).toFixed(1)
     : 0
 
   return (
@@ -130,27 +100,27 @@ export default async function TeacherDashboardPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allSubmissions?.map((sub: any) => (
+              {allSubmissions.map((sub) => (
                 <TableRow key={sub.id}>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium">{(sub.student as any)?.full_name || "Unknown"}</span>
-                      <span className="text-xs text-muted-foreground">{(sub.student as any)?.email}</span>
+                      <span className="font-medium">{sub.student.name || "Unknown"}</span>
+                      <span className="text-xs text-muted-foreground">{sub.student.email}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{(sub.quiz as any)?.title}</TableCell>
-                  <TableCell className="font-medium">{sub.score}/{sub.total_points}</TableCell>
+                  <TableCell>{sub.quiz.title}</TableCell>
+                  <TableCell className="font-medium">{sub.score}/{sub.totalPoints}</TableCell>
                   <TableCell>
-                    <Badge variant={(sub.score / sub.total_points) >= 0.5 ? "default" : "destructive"}>
-                      {(sub.score / sub.total_points) * 100}%
+                    <Badge variant={(sub.score / sub.totalPoints) >= 0.5 ? "default" : "destructive"}>
+                      {Math.round((sub.score / sub.totalPoints) * 100)}%
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground text-xs">
-                    {new Date(sub.submitted_at).toLocaleString()}
+                    {new Date(sub.submittedAt).toLocaleString()}
                   </TableCell>
                 </TableRow>
               ))}
-              {(!allSubmissions || allSubmissions.length === 0) && (
+              {allSubmissions.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     No submissions found for this class.

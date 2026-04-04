@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 import { FileDown, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,28 +11,22 @@ export default async function MaterialsPage({
   params: { classId: string }
 }) {
   const { classId } = await params
-  const supabase = await createClient()
+  const session = await auth()
+  const user = session?.user
 
-  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user?.id)
-    .single()
+  const isTeacher = user.role === 'TEACHER' || user.role === 'ADMIN'
 
-  const isTeacher = profile?.role === 'teacher' || profile?.role === 'admin'
+  // Fetch materials for the class using Prisma
+  const materials = await prisma.material.findMany({
+    where: { classId: classId },
+    orderBy: { chapterSession: 'asc' }
+  })
 
-  // Fetch materials for the class
-  const { data: materials } = await supabase
-    .from('materials')
-    .select('*')
-    .eq('class_id', classId)
-    .order('chapter_session', { ascending: true })
-
-  // Group materials by chapter_session
+  // Group materials by chapterSession
   const groupedMaterials: Record<string, any[]> = (materials || []).reduce((acc, material) => {
-    const chapter = material.chapter_session || 'Other Materials'
+    const chapter = material.chapterSession || 'Other Materials'
     if (!acc[chapter]) {
       acc[chapter] = []
     }
@@ -67,7 +62,7 @@ export default async function MaterialsPage({
               {items.map((item) => (
                 <Card key={item.id} className="overflow-hidden hover:bg-muted/50 transition-colors">
                   <a
-                    href={item.file_url}
+                    href={item.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4"

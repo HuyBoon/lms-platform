@@ -1,44 +1,47 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { registerUser } from '@/lib/actions/auth'
+import { signIn } from 'next-auth/react'
 
 export function RegisterForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
-  const [role, setRole] = useState<'student' | 'teacher'>('student')
+  const [role, setRole] = useState<'STUDENT' | 'TEACHER'>('STUDENT')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: role,
-        },
-      },
-    })
+    const formData = new FormData()
+    formData.append('email', email)
+    formData.append('password', password)
+    formData.append('fullName', fullName)
+    formData.append('role', role)
 
-    if (error) {
-      setError(error.message)
+    const result = await registerUser(formData)
+
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
     } else {
+      // Auto-login after registration
+      await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
       router.push('/')
       router.refresh()
     }
@@ -85,13 +88,13 @@ export function RegisterForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="role">I am a...</Label>
-            <Select onValueChange={(val: any) => setRole(val)} defaultValue="student">
+            <Select onValueChange={(val: any) => setRole(val)} defaultValue="STUDENT">
               <SelectTrigger id="role">
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="teacher">Teacher</SelectItem>
+                <SelectItem value="STUDENT">Student</SelectItem>
+                <SelectItem value="TEACHER">Teacher</SelectItem>
               </SelectContent>
             </Select>
           </div>

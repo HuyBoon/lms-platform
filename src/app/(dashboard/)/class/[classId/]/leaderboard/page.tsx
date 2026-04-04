@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
 import { Trophy, Medal, Award } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -10,38 +10,27 @@ export default async function LeaderboardPage({
   params: { classId: string }
 }) {
   const { classId } = await params
-  const supabase = await createClient()
 
-  // Fetch all quizzes in this class
-  const { data: quizzes } = await supabase
-    .from('quizzes')
-    .select('id')
-    .eq('class_id', classId)
-  
-  const quizIds = quizzes?.map(q => q.id) || []
-
-  // Fetch all submissions for these quizzes
-  const { data: submissions } = await supabase
-    .from('submissions')
-    .select(`
-      score,
-      total_points,
-      student:student_id (
-        id,
-        full_name,
-        email
-      )
-    `)
-    .in('quiz_id', quizIds)
+  // Fetch all submissions for quizzes in this class using Prisma
+  const submissions = await prisma.submission.findMany({
+    where: {
+      quiz: { classId: classId }
+    },
+    include: {
+      student: {
+        select: { id: true, name: true, email: true }
+      }
+    }
+  })
 
   // Aggregate scores by student
   const leaderboardData: Record<string, any> = {}
   
-  submissions?.forEach((sub: any) => {
+  submissions.forEach((sub) => {
     const studentId = sub.student.id
     if (!leaderboardData[studentId]) {
       leaderboardData[studentId] = {
-        name: sub.student.full_name || "Unknown Student",
+        name: sub.student.name || "Unknown Student",
         email: sub.student.email,
         totalScore: 0,
         totalPoints: 0,
@@ -49,7 +38,7 @@ export default async function LeaderboardPage({
       }
     }
     leaderboardData[studentId].totalScore += sub.score
-    leaderboardData[studentId].totalPoints += sub.total_points
+    leaderboardData[studentId].totalPoints += sub.totalPoints
     leaderboardData[studentId].quizzesCompleted += 1
   })
 

@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle2, XCircle, ChevronLeft, ChevronRight, SendHorizontal } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { getQuizData } from '@/lib/actions/quiz'
 
 interface QuizProps {
   quizId: string
@@ -23,49 +23,23 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
   const [submitting, setSubmitting] = useState(false)
   const [percentage, setPercentage] = useState(0)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     async function fetchData() {
-      // 1. Fetch quiz and questions
-      const { data: quizData } = await supabase
-        .from('quizzes')
-        .select(`
-          *,
-          questions (
-            *,
-            answers (*)
-          )
-        `)
-        .eq('id', quizId)
-        .single()
-
-      if (quizData) {
-        setQuiz(quizData)
-        setQuestions(quizData.questions || [])
+      const data = await getQuizData(quizId)
+      
+      if (data.quiz) {
+        setQuiz(data.quiz)
+        setQuestions((data.quiz as any).questions || [])
       }
 
-      // 2. Check for existing submission
-      const { data: subData } = await supabase
-        .from('submissions')
-        .select(`
-          *,
-          submission_details (
-            *
-          )
-        `)
-        .eq('quiz_id', quizId)
-        .eq('student_id', studentId)
-        .single()
-
-      if (subData) {
-        setSubmission(subData)
-        setPercentage(Math.round((subData.score / subData.total_points) * 100))
+      if (data.submission) {
+        setSubmission(data.submission)
+        setPercentage(Math.round(((data.submission as any).score / (data.submission as any).totalPoints) * 100))
         
-        // Reconstruct selected answers from submission details
         const reconstructed: Record<string, string> = {}
-        subData.submission_details.forEach((detail: any) => {
-          reconstructed[detail.question_id] = detail.selected_answer_id
+        ;(data.submission as any).details.forEach((detail: any) => {
+          reconstructed[detail.questionId] = detail.selectedAnswerId
         })
         setSelectedAnswers(reconstructed)
       }
@@ -74,10 +48,10 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
     }
 
     fetchData()
-  }, [quizId, studentId, supabase])
+  }, [quizId, studentId])
 
   const handleSelectAnswer = (questionId: string, answerId: string) => {
-    if (submission) return // Disable if already submitted
+    if (submission) return
     setSelectedAnswers(prev => ({ ...prev, [questionId]: answerId }))
   }
 
@@ -102,7 +76,6 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
     const result = await response.json()
     
     if (result.success) {
-      // Refresh to show breakdown
       window.location.reload()
     } else {
       alert('Error submitting quiz: ' + result.error)
@@ -123,7 +96,7 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
         <h1 className="text-2xl font-bold">{quiz.title}</h1>
         {submission && (
           <Badge variant={percentage >= 50 ? "default" : "destructive"} className="text-sm px-3 py-1">
-            Score: {submission.score}/{submission.total_points} ({percentage}%)
+            Score: {submission.score}/{submission.totalPoints} ({percentage}%)
           </Badge>
         )}
       </div>
@@ -139,14 +112,14 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
             )}
           </CardTitle>
           <CardDescription className="text-base text-foreground font-medium mt-2">
-            {currentQuestion.question_text}
+            {currentQuestion.questionText}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {currentQuestion.answers.map((answer: any) => {
             const isSelected = selectedAnswers[currentQuestion.id] === answer.id
             const showBreakdown = submission
-            const isCorrect = answer.is_correct
+            const isCorrect = answer.isCorrect
             const studentSelectedCorrectly = showBreakdown && isSelected && isCorrect
             const studentSelectedIncorrectly = showBreakdown && isSelected && !isCorrect
             
@@ -165,7 +138,7 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
                 disabled={!!submission}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span>{answer.answer_text}</span>
+                  <span>{answer.answerText}</span>
                   {showBreakdown && isCorrect && <CheckCircle2 className="size-5 text-green-600" />}
                   {studentSelectedIncorrectly && <XCircle className="size-5 text-red-600" />}
                 </div>
@@ -185,7 +158,7 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
 
           {isLastQuestion && !submission ? (
             <Button 
-              className="gap-2" 
+              className="gap-2 focus:ring-primary" 
               onClick={handleSubmit} 
               disabled={submitting || Object.keys(selectedAnswers).length < questions.length}
             >
@@ -196,7 +169,7 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
               variant="outline"
               onClick={() => setCurrentQuestionIndex(prev => prev + 1)}
               disabled={isLastQuestion}
-              className="gap-2 focus:ring-primary"
+              className="gap-2"
             >
               Next <ChevronRight className="size-4" />
             </Button>
@@ -208,9 +181,9 @@ export function QuizInterface({ quizId, studentId }: QuizProps) {
         <div className="mt-8 p-6 bg-muted/50 rounded-lg border">
           <h3 className="text-lg font-semibold mb-2">Quiz Summary</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            You completed this quiz on {new Date(submission.submitted_at).toLocaleDateString()}.
+            You completed this quiz on {new Date(submission.submittedAt).toLocaleDateString()}.
           </p>
-          <Button variant="outline" onClick={() => router.push(`/class/${quiz.class_id}/quizzes`)}>
+          <Button variant="outline" onClick={() => router.push(`/class/${quiz.classId}/quizzes`)}>
             Back to Quizzes
           </Button>
         </div>

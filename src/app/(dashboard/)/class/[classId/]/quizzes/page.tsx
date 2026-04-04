@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 import { ClipboardList, Plus, PlayCircle, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -11,29 +12,27 @@ export default async function QuizzesPage({
   params: { classId: string }
 }) {
   const { classId } = await params
-  const supabase = await createClient()
+  const session = await auth()
+  const user = session?.user
 
-  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user?.id)
-    .single()
+  const isTeacher = user.role === 'TEACHER' || user.role === 'ADMIN'
 
-  const isTeacher = profile?.role === 'teacher' || profile?.role === 'admin'
-
-  // Fetch quizzes for the class
-  const { data: quizzes } = await supabase
-    .from('quizzes')
-    .select('*, questions(count)')
-    .eq('class_id', classId)
+  // Fetch quizzes for the class using Prisma
+  const quizzes = await prisma.quiz.findMany({
+    where: { classId: classId },
+    include: {
+      _count: {
+        select: { questions: true }
+      }
+    }
+  })
 
   // Fetch submissions for this student
-  const { data: submissions } = await supabase
-    .from('submissions')
-    .select('*')
-    .eq('student_id', user?.id)
+  const submissions = await prisma.submission.findMany({
+    where: { studentId: user.id }
+  })
 
   return (
     <div className="space-y-8">
@@ -53,7 +52,7 @@ export default async function QuizzesPage({
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {quizzes.map((quiz) => {
-            const submission = submissions?.find(s => s.quiz_id === quiz.id)
+            const submission = submissions?.find(s => s.quizId === quiz.id)
             const completed = !!submission
 
             return (
@@ -66,7 +65,7 @@ export default async function QuizzesPage({
                   </div>
                   <CardTitle className="mt-2">{quiz.title}</CardTitle>
                   <CardDescription>
-                    {quiz.questions?.[0]?.count || 0} Questions
+                    {quiz._count.questions} Questions
                   </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-0">
@@ -74,7 +73,7 @@ export default async function QuizzesPage({
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-primary">
                         <CheckCircle2 className="size-4" />
-                        Score: {submission.score}/{submission.total_points}
+                        Score: {submission.score}/{submission.totalPoints}
                       </div>
                       <Button variant="ghost" size="sm" render={(props) => (
                         <Link {...props} href={`/class/${classId}/quizzes/${quiz.id}`}>

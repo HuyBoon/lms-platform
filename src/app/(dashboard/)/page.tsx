@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,34 +13,27 @@ import {
 import { Badge } from "@/components/ui/badge"
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  // Get user profile role
-  const { data: profile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user?.id)
-    .single()
+  const session = await auth()
+  const user = session?.user
 
-  const isTeacher = profile?.role === 'teacher' || profile?.role === 'admin'
+  if (!user) return null
 
-  // Fetch classes
+  const isTeacher = user.role === 'TEACHER' || user.role === 'ADMIN'
+
+  // Fetch classes using Prisma
   let classes = []
   if (isTeacher) {
-    const { data } = await supabase
-      .from('classes')
-      .select('*')
-      .eq('teacher_id', user?.id)
-    classes = data || []
+    classes = await prisma.class.findMany({
+      where: { teacherId: user.id },
+      orderBy: { createdAt: 'desc' }
+    })
   } else {
     // For students, fetch enrolled classes
-    const { data: enrollments } = await supabase
-      .from('enrollments')
-      .select('classes(*)')
-      .eq('student_id', user?.id)
-    classes = enrollments?.map((e: any) => e.classes) || []
+    const enrollments = await prisma.enrollment.findMany({
+      where: { studentId: user.id },
+      include: { class: true }
+    })
+    classes = enrollments.map(e => e.class)
   }
 
   return (
@@ -73,7 +67,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {classes.map((cls: any) => (
+          {classes.map((cls) => (
             <Card key={cls.id} className="hover:shadow-md transition-shadow cursor-pointer">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -85,7 +79,7 @@ export default async function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardFooter className="text-xs text-muted-foreground">
-                Created {new Date(cls.created_at).toLocaleDateString()}
+                Created {new Date(cls.createdAt).toLocaleDateString()}
               </CardFooter>
             </Card>
           ))}

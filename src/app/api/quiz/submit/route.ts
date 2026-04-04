@@ -1,47 +1,44 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { auth } from "@/auth"
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient()
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { quizId, answers: studentAnswers, studentId } = await req.json()
 
     if (!quizId || !studentAnswers || !studentId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // 1. Fetch questions and correct answers for this quiz
-    const { data: questions, error: questionsError } = await supabase
-      .from('questions')
-      .select(`
-        id,
-        points,
-        answers (
-          id,
-          is_correct
-        )
-      `)
-      .eq('quiz_id', quizId)
+    // 1. Fetch questions and correct answers using Prisma
+    const questions = await prisma.question.findMany({
+      where: { quizId: quizId },
+      include: {
+        answers: true
+      }
+    })
 
-    if (questionsError || !questions) {
-      return NextResponse.json({ error: 'Quiz not found or fetch failed' }, { status: 404 })
+    if (!questions) {
+      return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
     }
 
     let totalScore = 0
     let totalPossiblePoints = 0
-    const submissionDetails = []
+    const submissionDetails: any[] = []
 
     // 2. Auto-grading logic
     for (const question of questions) {
       totalPossiblePoints += question.points || 0
       
-      // Find the student's answer for this question
       const studentAnswer = studentAnswers.find((a: any) => a.questionId === question.id)
       const selectedAnswerId = studentAnswer?.selectedAnswerId
       
-      // Find the correct answer for this question
-      const correctAnswer = (question.answers as any[]).find(a => a.is_correct)
-      
+      const correctAnswer = question.answers.find(a => a.isCorrect)
       const isCorrect = selectedAnswerId === correctAnswer?.id
       
       if (isCorrect) {
@@ -49,42 +46,24 @@ export async function POST(req: Request) {
       }
 
       submissionDetails.push({
-        question_id: question.id,
-        selected_answer_id: selectedAnswerId,
-        is_correct: isCorrect
+        questionId: question.id,
+        selectedAnswerId: selectedAnswerId,
+        isCorrect: isCorrect
       })
     }
 
-    // 3. Store the submission in Supabase
-    const { data: submission, error: submissionError } = await supabase
-      .from('submissions')
-      .insert({
-        student_id: studentId,
-        quiz_id: quizId,
+    // 3. Use transaction to store submission and details
+    const submission = await prisma.submission.create({
+      data: {
+        studentId: studentId,
+        quizId: quizId,
         score: totalScore,
-        total_points: totalPossiblePoints
-      })
-      .select('id')
-      .single()
-
-    if (submissionError) {
-      return NextResponse.json({ error: submissionError.message }, { status: 500 })
-    }
-
-    // 4. Store submission details
-    const detailsToInsert = submissionDetails.map(detail => ({
-      ...detail,
-      submission_id: submission.id
-    }))
-
-    const { error: detailsError } = await supabase
-      .from('submission_details')
-      .insert(detailsToInsert)
-
-    if (detailsError) {
-      // Note: In production, you might want to handle this partial success
-      console.error('Failed to store submission details:', detailsError)
-    }
+        totalPoints: totalPossiblePoints,
+        details: {
+          create: submissionDetails
+        }
+      }
+    })
 
     return NextResponse.json({
       success: true,
@@ -96,6 +75,7 @@ export async function POST(req: Request) {
     })
 
   } catch (error: any) {
+    console.error('Quiz submission error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
