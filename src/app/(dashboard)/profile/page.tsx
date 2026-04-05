@@ -39,7 +39,7 @@ export default async function ProfilePage() {
   // Calculate Awards for Students
   const awards: any[] = []
   if (fullUser.role === "STUDENT") {
-     fullUser.submissions.forEach((sub) => {
+     fullUser.submissions.forEach((sub: any) => {
         const percentage = (sub.score / sub.totalPoints) * 100
         if (percentage >= 90) {
            awards.push({
@@ -75,14 +75,16 @@ export default async function ProfilePage() {
         classesCount: fullUser.enrollments.length,
         quizzesCount: fullUser.submissions.length,
         avgScore: fullUser.submissions.length > 0 
-           ? (fullUser.submissions.reduce((acc, s) => acc + (s.score / s.totalPoints), 0) / fullUser.submissions.length) * 100 
+           ? (fullUser.submissions.reduce((acc: number, s: any) => acc + (s.score / s.totalPoints), 0) / fullUser.submissions.length) * 100 
            : 0,
+        xp: fullUser.xp,
+        level: fullUser.level,
      },
      teacher: {
         classesCount: fullUser.createdClasses.length,
-        studentsCount: fullUser.createdClasses.reduce((acc, c) => acc + c.enrollments.length, 0),
-        materialsCount: fullUser.createdClasses.reduce((acc, c) => acc + c.materials.length, 0),
-        quizzesCount: fullUser.createdClasses.reduce((acc, c) => acc + c.quizzes.length, 0),
+        studentsCount: fullUser.createdClasses.reduce((acc: number, c: any) => acc + c.enrollments.length, 0),
+        materialsCount: fullUser.createdClasses.reduce((acc: number, c: any) => acc + c.materials.length, 0),
+        quizzesCount: fullUser.createdClasses.reduce((acc: number, c: any) => acc + c.quizzes.length, 0),
      }
   }
 

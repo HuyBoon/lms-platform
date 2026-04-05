@@ -31,6 +31,10 @@ model User {
   submissions    Submission[]
   quizzes        Quiz[]        @relation("QuizCreator")
 
+  // Gamification
+  xp            Int       @default(0)
+  level         Int       @default(1)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -40,6 +40,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     email?: string | null
     image?: string | null
     role?: string
+    xp?: number
+    level?: number
   }
 }
 
@@ -51,6 +53,15 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const userInitials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase()
     : "HB"
+
+  // Gamification Logic
+  const level = user?.level || 1
+  const xp = user?.xp || 0
+  const currentLevelTotalXp = 50 * level * (level - 1)
+  const nextLevelTotalXp = 50 * (level + 1) * level
+  const xpInCurrentLevel = xp - currentLevelTotalXp
+  const xpRequiredForNextLevel = nextLevelTotalXp - currentLevelTotalXp
+  const progress = Math.min(Math.max((xpInCurrentLevel / xpRequiredForNextLevel) * 100, 0), 100)
 
   return (
     <Sidebar collapsible="icon" className="border-r-4 border-primary/20 bg-white" {...props}>
@@ -106,20 +117,36 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               <DropdownMenuTrigger render={
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent h-16 rounded-[1.5rem] border-4 border-white bg-white shadow-xl sticker-shadow hover:scale-105 transition-all"
+                  className="data-[state=open]:bg-sidebar-accent h-24 rounded-[1.5rem] border-4 border-white bg-white shadow-xl sticker-shadow hover:scale-105 transition-all flex flex-col items-start justify-center p-4 gap-2"
                 />
               }>
-                <Avatar className="size-10 rounded-xl border-2 border-primary/20">
-                  <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
-                  <AvatarFallback className="rounded-xl bg-primary text-primary-foreground font-black text-xs">
-                    {userInitials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
-                  <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
-                  <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role || "STUDENT"}</span>
+                <div className="flex items-center w-full">
+                  <Avatar className="size-10 rounded-xl border-2 border-primary/20">
+                    <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
+                    <AvatarFallback className="rounded-xl bg-primary text-primary-foreground font-black text-xs">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
+                    <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
+                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role || "STUDENT"}</span>
+                  </div>
+                  <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
                 </div>
-                <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
+                
+                {/* Magic XP Bar */}
+                <div className="w-full space-y-1 group-data-[collapsible=icon]:hidden">
+                  <div className="flex justify-between items-center text-[8px] font-black uppercase text-slate-400 italic">
+                    <span>Level {level}</span>
+                    <span>{Math.round(xpInCurrentLevel)} / {xpRequiredForNextLevel} XP</span>
+                  </div>
+                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden border border-slate-100">
+                    <div 
+                      className="h-full bg-primary transition-all duration-1000 ease-out" 
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"

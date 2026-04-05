@@ -11,6 +11,8 @@ interface ProfileHeaderProps {
     image?: string | null
     role?: string
     createdAt: Date
+    xp?: number
+    level?: number
   }
 }
 
@@ -73,7 +75,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
             <div className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-secondary/10 border-4 border-white shadow-sm text-secondary font-black italic uppercase tracking-tighter text-sm">
               <Sparkles className="size-4" />
-              Legendary Status
+              Level {user.level || 1} • {user.xp || 0} XP Total
             </div>
           </div>
         </div>

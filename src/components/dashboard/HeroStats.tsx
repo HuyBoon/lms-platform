@@ -9,11 +9,20 @@ interface HeroStatsProps {
     classesCount: number
     quizzesCount: number
     avgScore: number
-    totalPoints?: number
+    xp?: number
+    level?: number
   }
 }
 
 export function HeroStats({ stats }: HeroStatsProps) {
+  const level = stats.level || 1
+  const xp = stats.xp || 0
+  const currentLevelTotalXp = 50 * level * (level - 1)
+  const nextLevelTotalXp = 50 * (level + 1) * level
+  const xpInCurrentLevel = xp - currentLevelTotalXp
+  const xpRequiredForNextLevel = nextLevelTotalXp - currentLevelTotalXp
+  const progressPercent = Math.min(Math.max((xpInCurrentLevel / xpRequiredForNextLevel) * 100, 0), 100)
+
   const statCards = [
     {
       title: "Worlds Explored",
@@ -22,7 +31,8 @@ export function HeroStats({ stats }: HeroStatsProps) {
       color: "text-blue-500",
       bg: "bg-blue-50",
       border: "border-blue-200",
-      label: "Classes Joined"
+      label: "Classes Joined",
+      progress: `${Math.min(stats.classesCount * 20, 100)}%`
     },
     {
       title: "Victory Quests",
@@ -31,16 +41,18 @@ export function HeroStats({ stats }: HeroStatsProps) {
       color: "text-yellow-600",
       bg: "bg-yellow-50",
       border: "border-yellow-200",
-      label: "Completed Quizzes"
+      label: "Completed Quizzes",
+      progress: `${Math.min(stats.quizzesCount * 10, 100)}%`
     },
     {
-      title: "Magic Power",
-      value: `${stats.avgScore.toFixed(0)}%`,
+      title: "Legendary XP",
+      value: `${Math.round(xpInCurrentLevel)}`,
       icon: Zap,
       color: "text-pink-500",
       bg: "bg-pink-50",
       border: "border-pink-200",
-      label: "Average Success"
+      label: `Towards Level ${level + 1}`,
+      progress: `${progressPercent}%`
     }
   ]
 
@@ -67,7 +79,7 @@ export function HeroStats({ stats }: HeroStatsProps) {
              <div className="mt-6 w-full h-3 bg-muted rounded-full border-2 border-white shadow-inner overflow-hidden">
                 <div 
                   className={cn("h-full rounded-full transition-all duration-1000", stat.color.replace('text-', 'bg-'))}
-                  style={{ width: stat.title === "Magic Power" ? stat.value : `${Math.min(stats.classesCount * 20, 100)}%` }}
+                  style={{ width: stat.progress }}
                 />
              </div>
           </CardContent>
