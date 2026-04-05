@@ -151,3 +151,39 @@ export async function deleteMaterial(materialId: string, classId: string) {
     return { error: "Failed to remove material from the world." }
   }
 }
+
+export async function updateMaterial(materialId: string, data: z.infer<typeof MaterialSchema>) {
+  const session = await auth()
+  const userId = session?.user?.id
+
+  if (!session || !userId || session.user.role !== "TEACHER") {
+    return { error: "Unauthorized access detected. Only Sages can refine Material Capsules!" }
+  }
+
+  try {
+    const material = await prisma.material.findUnique({
+      where: { id: materialId }
+    })
+
+    if (!material || material.createdById !== userId) {
+      return { error: "You cannot transmute this material." }
+    }
+
+    await prisma.material.update({
+      where: { id: materialId },
+      data: {
+        title: data.title,
+        fileUrl: data.fileUrl,
+        chapterSession: data.chapterSession || "Common Knowledge"
+      }
+    })
+
+    revalidatePath(`/class/${data.classId}/teacher`)
+    revalidatePath(`/class/${data.classId}/student`)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Material Refinement Error:", error)
+    return { error: "Failed to refine the Material Capsule." }
+  }
+}
