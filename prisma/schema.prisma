@@ -31,6 +31,11 @@ model User {
   submissions    Submission[]
   quizzes        Quiz[]        @relation("QuizCreator")
 
+  // Gamification
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  materialViews MaterialView[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -106,10 +111,23 @@ model Material {
   classId        String
   createdById    String
   
-  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
-  createdBy User  @relation(fields: [createdById], references: [id])
+  class     Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdBy User           @relation(fields: [createdById], references: [id])
+  loreViews MaterialView[]
 
   createdAt DateTime @default(now())
+}
+
+model MaterialView {
+  id         String   @id @default(cuid())
+  studentId  String
+  materialId String
+  viewedAt   DateTime @default(now())
+
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, materialId])
 }
 
 model Quiz {

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { signOut } from "next-auth/react"
+import { getLevelTitle, calculateXPProgress } from "@/lib/gamification"
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
@@ -40,6 +41,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     email?: string | null
     image?: string | null
     role?: string
+    xp?: number
+    level?: number
   }
 }
 
@@ -51,6 +54,11 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const userInitials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase()
     : "HB"
+
+  // Gamification Logic
+  const level = user?.level || 1
+  const xp = user?.xp || 0
+  const { progress, current, required } = calculateXPProgress(xp, level)
 
   return (
     <Sidebar collapsible="icon" className="border-r-4 border-primary/20 bg-white" {...props}>
@@ -82,7 +90,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Learning Worlds" className="h-12 hover:bg-blue-400/10 transition-all group rounded-2xl border-2 border-transparent active:scale-95 hover:border-blue-400/20" render={
-              <a href="/dashboard" />
+              <a href="/worlds" />
             }>
               <BookOpen className="size-5 group-hover:text-blue-600 transition-colors text-slate-400" />
               <span className="font-black italic uppercase tracking-tight text-lg">Worlds</span>
@@ -106,20 +114,38 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               <DropdownMenuTrigger render={
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent h-16 rounded-[1.5rem] border-4 border-white bg-white shadow-xl sticker-shadow hover:scale-105 transition-all"
+                  className="data-[state=open]:bg-sidebar-accent h-24 rounded-[1.5rem] border-4 border-white bg-white shadow-xl sticker-shadow hover:scale-105 transition-all flex flex-col items-start justify-center p-4 gap-2"
                 />
               }>
-                <Avatar className="size-10 rounded-xl border-2 border-primary/20">
-                  <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
-                  <AvatarFallback className="rounded-xl bg-primary text-primary-foreground font-black text-xs">
-                    {userInitials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
-                  <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
-                  <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role || "STUDENT"}</span>
+                <div className="flex items-center w-full">
+                  <Avatar className="size-10 rounded-xl border-2 border-primary/20">
+                    <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
+                    <AvatarFallback className="rounded-xl bg-primary text-primary-foreground font-black text-xs">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
+                    <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
+                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">
+                      {user?.role === "TEACHER" ? "SAGE" : getLevelTitle(level)}
+                    </span>
+                  </div>
+                  <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
                 </div>
-                <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
+                
+                {/* Magic XP Bar */}
+                <div className="w-full space-y-1 group-data-[collapsible=icon]:hidden">
+                  <div className="flex justify-between items-center text-[8px] font-black uppercase text-slate-400 italic">
+                    <span>{user?.role === "TEACHER" ? "Wisdom Level" : "Hero Rank"} {level}</span>
+                    <span>{current} / {required} XP</span>
+                  </div>
+                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden border border-slate-100">
+                    <div 
+                      className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
@@ -128,15 +154,15 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               >
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-4 py-3 text-sm font-black uppercase tracking-widest text-slate-400 italic">
-                    Hero Profile
+                    {user?.role === "TEACHER" ? "Sage Lore" : "Hero Profile"}
                   </DropdownMenuLabel>
                   <DropdownMenuItem render={
-                     <a href="/" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-primary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
+                     <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-primary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
                   }>
                        <User className="size-5 text-primary" /> My Identity
                   </DropdownMenuItem>
                   <DropdownMenuItem render={
-                     <a href="/" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-secondary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
+                     <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-secondary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
                   }>
                        <Settings className="size-5 text-secondary" /> Settings
                   </DropdownMenuItem>

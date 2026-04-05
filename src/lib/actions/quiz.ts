@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { calculateLevel } from "@/lib/gamification"
 
 const QuizSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -102,17 +103,45 @@ export async function submitQuiz(quizId: string, answers: Record<string, string>
 
     const score = (correctCount / totalQuestions) * 100
 
-    const submission = await prisma.submission.create({
-      data: {
-        quizId,
-        studentId: session.user.id,
-        score
+    // Gamification Logic: Award XP equal to the score percentage
+    const xpEarned = Math.floor(score)
+
+    const submission = await prisma.$transaction(async (tx: any) => {
+      const sub = await tx.submission.create({
+        data: {
+          quizId,
+          studentId: session.user.id,
+          score,
+          totalPoints: totalQuestions // Assuming each question is 1 point for simplicity here, or use actual
+        }
+      })
+
+      // Update user XP and Level
+      const user = await tx.user.findUnique({
+        where: { id: session.user.id },
+        select: { xp: true, level: true }
+      })
+
+      if (user) {
+        const newXp = user.xp + xpEarned
+        const newLevel = calculateLevel(newXp)
+
+        await tx.user.update({
+          where: { id: session.user.id },
+          data: {
+            xp: newXp,
+            level: newLevel > user.level ? newLevel : user.level
+          }
+        })
       }
+
+      return sub
     })
 
     revalidatePath(`/class/${quiz.classId}/leaderboard`)
     revalidatePath(`/class/${quiz.classId}/student`)
-    return { success: true, submissionId: submission.id, score }
+    revalidatePath(`/profile`)
+    return { success: true, submissionId: submission.id, score, xpEarned }
   } catch (error) {
     console.error("Quiz Submission Error:", error)
     return { error: "Failed to submit protocol" }
