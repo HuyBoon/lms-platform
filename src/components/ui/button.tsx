@@ -10,12 +10,15 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  loading,
+  disabled,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { loading?: boolean }) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={loading || disabled}
+      className={cn(buttonVariants({ variant, size, className }), loading && "opacity-70 cursor-not-allowed")}
       {...props}
     />
   )

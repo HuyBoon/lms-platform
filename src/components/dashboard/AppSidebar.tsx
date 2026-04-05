@@ -93,7 +93,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Learning Worlds" className="h-12 hover:bg-blue-400/10 transition-all group rounded-2xl border-2 border-transparent active:scale-95 hover:border-blue-400/20" render={
-              <a href="/dashboard" />
+              <a href="/worlds" />
             }>
               <BookOpen className="size-5 group-hover:text-blue-600 transition-colors text-slate-400" />
               <span className="font-black italic uppercase tracking-tight text-lg">Worlds</span>
