@@ -103,3 +103,62 @@ export async function enrollInClassroom(formData: FormData) {
     return { error: "Failed to enroll in classroom" }
   }
 }
+
+export async function updateClassroom(classId: string, data: { name: string, description?: string }) {
+  const session = await auth()
+  if (!session?.user || (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN')) {
+    return { error: "Unauthorized" }
+  }
+
+  try {
+    const classroom = await prisma.class.findUnique({
+      where: { id: classId }
+    })
+
+    if (!classroom || classroom.teacherId !== session.user.id) {
+       return { error: "You are not the Sage of this world!" }
+    }
+
+    await prisma.class.update({
+      where: { id: classId },
+      data: {
+        name: data.name,
+        description: data.description,
+      }
+    })
+
+    revalidatePath(`/class/${classId}/teacher`)
+    revalidatePath(`/class/${classId}/teacher/settings`)
+    revalidatePath("/")
+    return { success: true }
+  } catch (error) {
+    return { error: "Failed to update world settings" }
+  }
+}
+
+export async function deleteClassroom(classId: string) {
+  const session = await auth()
+  if (!session?.user || (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN')) {
+    return { error: "Unauthorized" }
+  }
+
+  try {
+    const classroom = await prisma.class.findUnique({
+      where: { id: classId }
+    })
+
+    if (!classroom || classroom.teacherId !== session.user.id) {
+       return { error: "You are not the Sage of this world!" }
+    }
+
+    await prisma.class.delete({
+      where: { id: classId }
+    })
+
+    revalidatePath("/")
+    return { success: true }
+  } catch (error) {
+    console.error("World Collapse Error:", error)
+    return { error: "Failed to collapse the realm. Ancient magic protects it!" }
+  }
+}

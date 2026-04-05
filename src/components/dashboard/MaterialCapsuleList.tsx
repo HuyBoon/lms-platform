@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { deleteMaterial } from "@/lib/actions/material"
 import { Button } from "@/components/ui/button"
-import { ScrollText, Globe, Play, Trash2, ExternalLink, Sparkles, Wand2 } from "lucide-react"
+import { ScrollText, Globe, Play, Trash2, ExternalLink, Sparkles, Wand2, Edit3 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { LoreAbsorber } from "./LoreAbsorber"
@@ -20,6 +20,7 @@ interface MaterialCapsuleListProps {
   materials: Material[]
   classId: string
   isTeacher?: boolean
+  onEdit?: (material: Material) => void
 }
 
 const TYPE_CONFIG: any = {
@@ -29,7 +30,7 @@ const TYPE_CONFIG: any = {
   DEFAULT: { icon: Wand2, color: "bg-slate-100 text-slate-600 border-slate-400 shadow-[4px_4px_0px_0px_#64748b]" }
 }
 
-export function MaterialCapsuleList({ materials, classId, isTeacher = false }: MaterialCapsuleListProps) {
+export function MaterialCapsuleList({ materials, classId, isTeacher = false, onEdit }: MaterialCapsuleListProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
@@ -79,15 +80,25 @@ export function MaterialCapsuleList({ materials, classId, isTeacher = false }: M
                      <Icon className="size-8 stroke-[3]" />
                   </div>
                   {isTeacher && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDelete(material.id)}
-                      disabled={loadingId === material.id}
-                      className="size-10 rounded-xl text-slate-300 hover:text-destructive hover:bg-destructive/5 transition-colors border-2 border-transparent hover:border-destructive/10"
-                    >
-                      <Trash2 className="size-5" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => onEdit?.(material)}
+                        className="size-10 rounded-xl text-slate-300 hover:text-primary hover:bg-primary/5 transition-colors border-2 border-transparent hover:border-primary/10"
+                      >
+                        <Edit3 className="size-5" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDelete(material.id)}
+                        disabled={loadingId === material.id}
+                        className="size-10 rounded-xl text-slate-300 hover:text-destructive hover:bg-destructive/5 transition-colors border-2 border-transparent hover:border-destructive/10"
+                      >
+                        <Trash2 className="size-5" />
+                      </Button>
+                    </div>
                   )}
                </div>
 

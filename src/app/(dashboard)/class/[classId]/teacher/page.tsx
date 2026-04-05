@@ -23,6 +23,20 @@ export default async function TeacherClassDashboard({
   const classroom = await prisma.class.findUnique({
     where: { id: classId },
     include: {
+      quizzes: {
+        include: {
+          submissions: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5
+      },
+      enrollments: {
+        include: {
+          student: true
+        },
+        orderBy: { enrolledAt: "desc" },
+        take: 5
+      },
       _count: {
         select: { enrollments: true, quizzes: true, materials: true }
       }
@@ -30,12 +44,6 @@ export default async function TeacherClassDashboard({
   })
 
   if (!classroom) return <div>Neural Environment Disconnected</div>
-
-  const quickActions = [
-    { name: "Create Quiz", href: `/class/${classId}/teacher/quizzes/new`, icon: Plus, color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-    { name: "Add Material", href: `/class/${classId}/teacher/materials`, icon: FileText, color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-    { name: "Global Settings", href: `/class/${classId}/teacher/settings`, icon: Settings, color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  ]
 
   return (
     <div className="flex-1 space-y-10 p-10 pt-8 bg-background/50">
@@ -52,7 +60,7 @@ export default async function TeacherClassDashboard({
           </p>
         </div>
         <div className="flex items-center gap-4">
-           <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-3xl border-4 border-yellow-400 bg-white text-yellow-600 font-black italic uppercase tracking-widest gap-2 bouncy-hover")}>
+           <Link href={`/class/${classId}/teacher/students`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-3xl border-4 border-yellow-400 bg-white text-yellow-600 font-black italic uppercase tracking-widest gap-2 bouncy-hover")}>
              <BarChart3 className="size-6 text-yellow-500" /> Hero Analytics
            </Link>
            <button className={cn(buttonVariants({ size: "lg" }), "rounded-[2rem] h-14 px-8 font-black uppercase italic tracking-widest shadow-[6px_6px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bouncy-hover bg-primary")}>
@@ -63,7 +71,7 @@ export default async function TeacherClassDashboard({
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
         {[
-          { name: "Total Fun", value: "89%", icon: Users, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-400" },
+          { name: "World Success Rate", value: "85%", icon: BarChart3, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-400" },
           { name: "Hero Students", value: classroom._count.enrollments, icon: GraduationCap, color: "text-emerald-500", bg: "bg-emerald-50", border: "border-emerald-400" },
           { name: "Active Missions", value: classroom._count.quizzes, icon: BookOpen, color: "text-pink-500", bg: "bg-pink-50", border: "border-pink-400" },
           { name: "Treasure Chests", value: classroom._count.materials, icon: FileText, color: "text-yellow-500", bg: "bg-yellow-50", border: "border-yellow-400" },
@@ -110,24 +118,33 @@ export default async function TeacherClassDashboard({
              <CardHeader className="flex flex-row items-center justify-between p-8 border-b-4 border-muted/30 border-dashed">
                 <div className="space-y-1">
                    <CardTitle className="text-2xl font-black text-foreground uppercase italic tracking-tight">Hero Activity</CardTitle>
-                   <CardDescription className="text-slate-500 font-bold italic">See what your students are achieving!</CardDescription>
+                   <CardDescription className="text-slate-500 font-bold italic">See who is joining your world!</CardDescription>
                 </div>
                 <MoreVertical className="text-slate-300 cursor-pointer hover:text-primary transition-colors" />
              </CardHeader>
              <CardContent className="p-8">
                 <div className="space-y-6">
-                   {[1,2,3].map(i => (
-                     <div key={i} className="flex items-center gap-6 p-6 rounded-[2rem] bg-muted/20 border-4 border-white group hover:border-primary/20 transition-all cursor-default">
-                        <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center border-2 border-primary/20 text-primary group-hover:scale-110 transition-transform">
-                           <Users className="size-7" />
+                   {classroom.enrollments.map(enrollment => (
+                     <div key={enrollment.id} className="flex items-center gap-6 p-6 rounded-[2rem] bg-muted/20 border-4 border-white group hover:border-primary/20 transition-all cursor-default">
+                        <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center border-2 border-primary/20 text-primary group-hover:scale-110 transition-transform overflow-hidden">
+                           {enrollment.student.image ? (
+                             <img src={enrollment.student.image} alt={enrollment.student.name || "Student"} className="size-full object-cover" />
+                           ) : (
+                             <Users className="size-7" />
+                           )}
                         </div>
                         <div className="flex-1 space-y-1">
-                           <p className="text-foreground text-lg font-black tracking-tight italic uppercase truncate">Hero Milestone #{500 + i}</p>
-                           <p className="text-slate-500 font-bold italic text-sm">A new group of heroes just joined your world! Ready for adventure.</p>
+                           <p className="text-foreground text-lg font-black tracking-tight italic uppercase truncate">{enrollment.student.name || "Unknown Adventurer"}</p>
+                           <p className="text-slate-500 font-bold italic text-sm">Level {enrollment.student.level} Hero • {enrollment.student.xp} XP</p>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-black uppercase italic mt-1 tracking-widest">2m ago</span>
+                        <span className="text-[10px] text-slate-400 font-black uppercase italic mt-1 tracking-widest">{new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
                      </div>
                    ))}
+                   {classroom.enrollments.length === 0 && (
+                     <div className="p-10 text-center border-4 border-dashed border-muted rounded-3xl opacity-50">
+                        <p className="text-slate-400 font-black uppercase italic tracking-widest">No Heroes have arrived yet...</p>
+                     </div>
+                   )}
                 </div>
              </CardContent>
            </Card>
@@ -136,32 +153,25 @@ export default async function TeacherClassDashboard({
         <Card className="col-span-3 bg-white border-4 border-muted rounded-[2.5rem] sticker-shadow overflow-hidden p-0 flex flex-col">
           <CardHeader className="p-8 bg-secondary/5 border-b-4 border-muted/30 border-dashed">
             <CardTitle className="text-2xl font-black text-foreground uppercase italic tracking-tight">Current Missions</CardTitle>
-            <CardDescription className="text-slate-500 font-bold italic">Manage your created quests and loot.</CardDescription>
+            <CardDescription className="text-slate-500 font-bold italic">Manage your created quests and their success.</CardDescription>
           </CardHeader>
           <CardContent className="p-8 flex-grow">
              <div className="space-y-6">
-                <div className="group p-6 rounded-[2rem] bg-emerald-50 border-4 border-emerald-400 hover:bg-emerald-100 transition-all cursor-pointer sticker-shadow active:scale-95">
-                   <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-black uppercase tracking-widest text-emerald-600 italic">MISSION STATS</span>
-                      <ArrowUpRight className="size-6 text-emerald-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                   </div>
-                   <p className="text-foreground font-black text-2xl uppercase italic tracking-tight mb-2 truncate">QUEST 01: MAGIC BASICS</p>
-                   <p className="text-emerald-700/60 text-sm font-black uppercase italic tracking-widest">Participation: 100% | Fun: High</p>
-                </div>
+                {classroom.quizzes.map(quiz => (
+                  <div key={quiz.id} className="group p-6 rounded-[2rem] bg-emerald-50 border-4 border-emerald-400 hover:bg-emerald-100 transition-all cursor-pointer sticker-shadow active:scale-95">
+                     <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-black uppercase tracking-widest text-emerald-600 italic">QUIZ MISSION</span>
+                        <ArrowUpRight className="size-6 text-emerald-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                     </div>
+                     <p className="text-foreground font-black text-2xl uppercase italic tracking-tight mb-2 truncate">{quiz.title}</p>
+                     <p className="text-emerald-700/60 text-sm font-black uppercase italic tracking-widest">Submissions: {quiz.submissions.length} | Active Quest</p>
+                  </div>
+                ))}
                 
-                <div className="group p-6 rounded-[2rem] bg-blue-50 border-4 border-blue-400 hover:bg-blue-100 transition-all cursor-pointer sticker-shadow active:scale-95">
-                   <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-black uppercase tracking-widest text-blue-600 italic">LOOT STATUS</span>
-                      <ArrowUpRight className="size-6 text-blue-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                   </div>
-                   <p className="text-foreground font-black text-2xl uppercase italic tracking-tight mb-2 truncate">SECRET MAP PDF v1.4</p>
-                   <p className="text-blue-700/60 text-sm font-black uppercase italic tracking-widest">Findings: 432 | Safe: Yes</p>
-                </div>
-
-                <div className="p-8 rounded-[2rem] bg-muted/20 border-4 border-dashed border-muted flex flex-col items-center justify-center text-center space-y-4">
+                <Link href={`/class/${classId}/teacher/quizzes/new`} className="p-8 rounded-[2rem] bg-muted/20 border-4 border-dashed border-muted flex flex-col items-center justify-center text-center space-y-4 hover:bg-muted/30 transition-colors">
                    <Plus className="size-10 text-slate-300" />
-                   <p className="text-slate-400 font-black uppercase italic tracking-widest text-sm">Add more magic here!</p>
-                </div>
+                   <p className="text-slate-400 font-black uppercase italic tracking-widest text-sm">Forge New Quest</p>
+                </Link>
              </div>
           </CardContent>
         </Card>

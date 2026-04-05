@@ -147,3 +147,88 @@ export async function submitQuiz(quizId: string, answers: Record<string, string>
     return { error: "Failed to submit protocol" }
   }
 }
+
+export async function deleteQuiz(quizId: string, classId: string) {
+  const session = await auth()
+  if (!session?.user || (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN')) {
+    return { error: "Unauthorized" }
+  }
+
+  try {
+    const quiz = await prisma.quiz.findUnique({
+      where: { id: quizId }
+    })
+
+    if (!quiz || quiz.createdById !== session.user.id) {
+       return { error: "You cannot transmute this quest." }
+    }
+
+    await prisma.quiz.delete({
+      where: { id: quizId }
+    })
+
+    revalidatePath(`/class/${classId}/teacher/quizzes`)
+    return { success: true }
+  } catch (error) {
+    console.error("Quest Deletion Error:", error)
+    return { error: "Failed to remove the quest from the world." }
+  }
+}
+
+export async function updateQuiz(quizId: string, data: z.infer<typeof QuizSchema>) {
+  const session = await auth()
+  if (!session?.user || (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN')) {
+    return { error: "Unauthorized" }
+  }
+
+  const validatedFields = QuizSchema.safeParse(data)
+  if (!validatedFields.success) {
+    return { error: "Invalid quiz data." }
+  }
+
+  const { title, description, classId, questions } = validatedFields.data
+
+  try {
+    const existingQuiz = await prisma.quiz.findUnique({
+      where: { id: quizId }
+    })
+
+    if (!existingQuiz || existingQuiz.createdById !== session.user.id) {
+       return { error: "You are not the Sage of this quest!" }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete all existing questions (cascades to answers)
+      await tx.question.deleteMany({
+        where: { quizId }
+      })
+
+      // 2. Update Quiz metadata and recreate questions/answers
+      await tx.quiz.update({
+        where: { id: quizId },
+        data: {
+          title,
+          description,
+          questions: {
+            create: questions.map((q) => ({
+              questionText: q.questionText,
+              points: q.points,
+              answers: {
+                create: q.answers.map((a) => ({
+                  answerText: a.answerText,
+                  isCorrect: a.isCorrect,
+                }))
+              }
+            }))
+          }
+        }
+      })
+    })
+
+    revalidatePath(`/class/${classId}/teacher/quizzes`)
+    return { success: true }
+  } catch (error) {
+    console.error("Quiz Update Error:", error)
+    return { error: "Failed to refine the quest library." }
+  }
+}
