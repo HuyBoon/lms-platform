@@ -4,6 +4,72 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { calculateLevel } from "@/lib/gamification"
+
+// ... existing schemas and addMaterial/deleteMaterial actions ...
+
+export async function absorbMaterialLore(materialId: string) {
+  const session = await auth()
+  const userId = session?.user?.id
+
+  if (!session || !userId || session.user.role !== "STUDENT") {
+    return { error: "Only Heroes can absorb world lore!" }
+  }
+
+  try {
+    // Check if already absorbed
+    const existingView = await prisma.materialView.findUnique({
+      where: {
+        studentId_materialId: {
+          studentId: userId,
+          materialId: materialId
+        }
+      }
+    })
+
+    if (existingView) {
+      return { error: "You have already absorbed this lore capsule." }
+    }
+
+    // Award XP Transaction
+    await prisma.$transaction(async (tx: any) => {
+      // 1. Mark as seen
+      await tx.materialView.create({
+        data: {
+          studentId: userId,
+          materialId: materialId
+        }
+      })
+
+      // 2. Award 20 XP
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { xp: true, level: true }
+      })
+
+      if (user) {
+        const newXp = user.xp + 20
+        const newLevel = calculateLevel(newXp)
+
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            xp: newXp,
+            level: newLevel > user.level ? newLevel : user.level
+          }
+        })
+      }
+    })
+
+    revalidatePath("/profile")
+    revalidatePath("/dashboard")
+    
+    return { success: true, xpEarned: 20 }
+  } catch (error) {
+    console.error("Lore Absorption Error:", error)
+    return { error: "Failed to absorb the wisdom of this capsule." }
+  }
+}
 
 const MaterialSchema = z.object({
   title: z.string().min(1, "Title is required"),

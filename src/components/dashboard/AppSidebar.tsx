@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { signOut } from "next-auth/react"
+import { getLevelTitle, calculateXPProgress } from "@/lib/gamification"
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
@@ -57,11 +58,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   // Gamification Logic
   const level = user?.level || 1
   const xp = user?.xp || 0
-  const currentLevelTotalXp = 50 * level * (level - 1)
-  const nextLevelTotalXp = 50 * (level + 1) * level
-  const xpInCurrentLevel = xp - currentLevelTotalXp
-  const xpRequiredForNextLevel = nextLevelTotalXp - currentLevelTotalXp
-  const progress = Math.min(Math.max((xpInCurrentLevel / xpRequiredForNextLevel) * 100, 0), 100)
+  const { progress, current, required } = calculateXPProgress(xp, level)
 
   return (
     <Sidebar collapsible="icon" className="border-r-4 border-primary/20 bg-white" {...props}>
@@ -129,7 +126,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
                     <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
-                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role === "TEACHER" ? "SAGE" : "HERO"}</span>
+                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">
+                      {user?.role === "TEACHER" ? "SAGE" : getLevelTitle(level)}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
                 </div>
@@ -137,12 +136,12 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                 {/* Magic XP Bar */}
                 <div className="w-full space-y-1 group-data-[collapsible=icon]:hidden">
                   <div className="flex justify-between items-center text-[8px] font-black uppercase text-slate-400 italic">
-                    <span>{user?.role === "TEACHER" ? "Wisdom Level" : "Hero Level"} {level}</span>
-                    <span>{Math.round(xpInCurrentLevel)} / {xpRequiredForNextLevel} XP</span>
+                    <span>{user?.role === "TEACHER" ? "Wisdom Level" : "Hero Rank"} {level}</span>
+                    <span>{current} / {required} XP</span>
                   </div>
                   <div className="w-full h-2 bg-muted rounded-full overflow-hidden border border-slate-100">
                     <div 
-                      className="h-full bg-primary transition-all duration-1000 ease-out" 
+                      className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
                       style={{ width: `${progress}%` }}
                     />
                   </div>

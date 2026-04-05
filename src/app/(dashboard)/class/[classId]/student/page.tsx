@@ -31,7 +31,13 @@ export default async function StudentClassDashboard({
           }
         }
       },
-      materials: true,
+      materials: {
+        include: {
+          views: {
+            where: { studentId: user?.id }
+          }
+        }
+      },
       _count: {
         select: { enrollments: true, quizzes: true, materials: true }
       }
