@@ -2,7 +2,9 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, ShieldCheck, Sparkles, Wand2 } from "lucide-react"
+import { CalendarDays, ShieldCheck, Sparkles, Wand2, Trophy, Crown } from "lucide-react"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 interface ProfileHeaderProps {
   user: {
@@ -14,9 +16,10 @@ interface ProfileHeaderProps {
     xp?: number
     level?: number
   }
+  awardsCount?: number
 }
 
-export function ProfileHeader({ user }: ProfileHeaderProps) {
+export function ProfileHeader({ user, awardsCount = 0 }: ProfileHeaderProps) {
   const userInitials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase()
     : "HB"
@@ -27,56 +30,152 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   })
 
   const isTeacher = user.role === "TEACHER"
+  
+  // XP Calculations
+  const level = user?.level || 1
+  const xp = user?.xp || 0
+  const currentLevelTotalXp = 50 * level * (level - 1)
+  const nextLevelTotalXp = 50 * (level + 1) * level
+  const xpInCurrentLevel = xp - currentLevelTotalXp
+  const xpRequiredForNextLevel = nextLevelTotalXp - currentLevelTotalXp
+  const progress = Math.min(Math.max((xpInCurrentLevel / xpRequiredForNextLevel) * 100, 0), 100)
+
+  // Theme Config
+  const theme = isTeacher 
+    ? {
+        primary: "text-violet-600",
+        bg: "bg-violet-50",
+        border: "border-violet-200",
+        accent: "text-amber-500",
+        accentBg: "bg-amber-50",
+        icon: Wand2,
+        role: "VENERABLE SAGE",
+        rank: "GRAND ARCHIVIST"
+      }
+    : {
+        primary: "text-primary",
+        bg: "bg-primary/10",
+        border: "border-primary/20",
+        accent: "text-secondary",
+        accentBg: "bg-secondary/10",
+        icon: ShieldCheck,
+        role: "BRAVE HERO",
+        rank: "MYTHIC EXPLORER"
+      }
 
   return (
-    <div className="relative overflow-hidden rounded-[3rem] border-8 border-white bg-white p-10 sticker-shadow mb-10 group">
+    <div className="relative overflow-hidden rounded-[4rem] border-8 border-white bg-white p-8 md:p-14 sticker-shadow mb-10 group">
       {/* Decorative Background Elements */}
-      <div className="absolute -top-10 -right-10 size-40 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-colors" />
-      <div className="absolute -bottom-10 -left-10 size-40 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-colors" />
+      <div className={cn("absolute -top-10 -right-10 size-60 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity", isTeacher ? "bg-violet-400" : "bg-primary")} />
+      <div className={cn("absolute -bottom-10 -left-10 size-60 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity", isTeacher ? "bg-amber-400" : "bg-secondary")} />
 
-      <div className="relative flex flex-col md:flex-row items-center gap-10">
-        {/* Avatar Section */}
+      <div className="relative flex flex-col lg:flex-row items-center gap-12">
+        {/* Avatar & Level Orb */}
         <div className="relative">
-          <div className="size-32 md:size-44 rounded-[2.5rem] bg-slate-50 border-8 border-white sticker-shadow overflow-hidden group-hover:rotate-3 transition-transform cursor-default">
+          <motion.div 
+            whileHover={{ rotate: 5, scale: 1.05 }}
+            className="size-40 md:size-56 rounded-[3rem] bg-slate-50 border-8 border-white sticker-shadow overflow-hidden cursor-default z-10 relative"
+          >
             <Avatar className="size-full rounded-none">
               <AvatarImage src={user.image || undefined} className="object-cover" />
-              <AvatarFallback className="text-4xl font-black bg-primary text-primary-foreground italic">
+              <AvatarFallback className="text-6xl font-black bg-primary text-primary-foreground italic">
                 {userInitials}
               </AvatarFallback>
             </Avatar>
-          </div>
-          <div className="absolute -bottom-4 -right-4 p-4 bg-white rounded-2xl border-4 border-primary sticker-shadow animate-bounce-subtle">
-            {isTeacher ? (
-              <Wand2 className="size-8 text-primary shadow-sm" />
-            ) : (
-              <ShieldCheck className="size-8 text-primary shadow-sm" />
-            )}
+          </motion.div>
+          
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -bottom-6 -right-6 p-6 bg-white rounded-3xl border-4 border-primary sticker-shadow z-20"
+          >
+            <theme.icon className={cn("size-10 shadow-sm", theme.primary)} />
+          </motion.div>
+
+          <div className="absolute -top-4 -left-4 px-4 py-2 bg-foreground text-white rounded-2xl font-black italic uppercase text-xs sticker-shadow-sm z-20">
+            LVL {level}
           </div>
         </div>
 
-        {/* Info Section */}
-        <div className="flex-1 text-center md:text-left space-y-4">
-          <div className="space-y-1">
-            <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-              <h1 className="text-4xl md:text-6xl font-black text-foreground uppercase italic tracking-tight leading-none group-hover:text-primary transition-colors">
-                {user.name || "Player One"}
-              </h1>
-              <Badge className="bg-primary/20 text-primary-foreground border-4 border-white shadow-sm font-black italic uppercase tracking-widest px-4 py-1.5 text-xs rounded-full">
-                {isTeacher ? "SAGELY SAGE" : "BRAVE HERO"}
-              </Badge>
-            </div>
-            <p className="text-slate-400 font-bold text-lg italic tracking-wide">{user.email}</p>
+        {/* Identity & Progress */}
+        <div className="flex-1 text-center lg:text-left space-y-8 w-full">
+          <div className="space-y-3">
+             <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
+                <motion.h1 
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="text-5xl md:text-7xl font-black text-foreground uppercase italic tracking-tighter leading-none"
+                >
+                  {user.name || "Player One"}
+                </motion.h1>
+                <div className="flex gap-2">
+                   <Badge className="bg-foreground text-white border-4 border-white shadow-sm font-black italic uppercase tracking-widest px-4 py-2 text-[10px] rounded-full">
+                     {theme.role}
+                   </Badge>
+                   <Badge className={cn("border-4 border-white shadow-sm font-black italic uppercase tracking-widest px-4 py-2 text-[10px] rounded-full", theme.bg, theme.primary)}>
+                     {theme.rank}
+                   </Badge>
+                </div>
+             </div>
+             <p className="text-slate-400 font-bold text-xl italic tracking-wide lowercase">{user.email}</p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2">
-            <div className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-muted/30 border-4 border-white shadow-sm text-slate-500 font-black italic uppercase tracking-tighter text-sm">
-              <CalendarDays className="size-4" />
-              Joined {joinedDate}
+          {/* Epic Progress Bar */}
+          <div className="space-y-4">
+             <div className="flex justify-between items-end px-2">
+                <div className="space-y-1">
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Experience Points</span>
+                   <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-foreground italic">{Math.round(xpInCurrentLevel)}</span>
+                      <span className="text-slate-300 font-black italic uppercase text-sm">/ {xpRequiredForNextLevel} XP</span>
+                   </div>
+                </div>
+                <div className="flex flex-col items-end">
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Next Milestone</span>
+                   <span className="text-sm font-black text-slate-400 italic uppercase">Level {level + 1}</span>
+                </div>
+             </div>
+             
+             <div className="relative h-8 w-full bg-slate-100 rounded-full border-4 border-white shadow-inner overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className={cn("h-full rounded-full sticker-shadow-sm relative", isTeacher ? "bg-violet-500" : "bg-primary")}
+                >
+                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-shimmer" />
+                   {progress > 10 && (
+                     <Sparkles className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-white/50 animate-pulse" />
+                   )}
+                </motion.div>
+                
+                {/* Milestone Ticks */}
+                <div className="absolute inset-0 flex justify-around items-center opacity-20">
+                   {[...Array(4)].map((_, i) => (
+                     <div key={i} className="h-4 w-1 bg-slate-400 rounded-full" />
+                   ))}
+                </div>
+             </div>
+          </div>
+
+          {/* Quick Stats Badges */}
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+            <div className="flex items-center gap-3 px-6 py-3 rounded-[1.5rem] bg-white border-4 border-slate-50 sticker-shadow-sm text-slate-500 font-black italic uppercase tracking-tighter text-xs">
+              <CalendarDays className="size-5 text-blue-400" />
+              Sojourning since {joinedDate}
             </div>
-            <div className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-secondary/10 border-4 border-white shadow-sm text-secondary font-black italic uppercase tracking-tighter text-sm">
-              <Sparkles className="size-4" />
-              Level {user.level || 1} • {user.xp || 0} XP Total
-            </div>
+            {!isTeacher && (
+              <div className="flex items-center gap-3 px-6 py-3 rounded-[1.5rem] bg-amber-50 border-4 border-white sticker-shadow-sm text-amber-600 font-black italic uppercase tracking-tighter text-xs">
+                <Trophy className="size-5 text-amber-500" />
+                {awardsCount} Relics Earned
+              </div>
+            )}
+            {isTeacher && (
+              <div className="flex items-center gap-3 px-6 py-3 rounded-[1.5rem] bg-violet-50 border-4 border-white sticker-shadow-sm text-violet-600 font-black italic uppercase tracking-tighter text-xs">
+                <Crown className="size-5 text-violet-500" />
+                World Creator elite
+              </div>
+            )}
           </div>
         </div>
       </div>
