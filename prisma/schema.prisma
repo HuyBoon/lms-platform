@@ -113,7 +113,7 @@ model Material {
   
   class     Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
   createdBy User           @relation(fields: [createdById], references: [id])
-  views     MaterialView[]
+  loreViews MaterialView[]
 
   createdAt DateTime @default(now())
 }

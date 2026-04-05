@@ -13,7 +13,7 @@ interface Material {
   title: string
   fileUrl: string
   chapterSession: string | null
-  views?: any[]
+  loreViews?: any[]
 }
 
 interface MaterialCapsuleListProps {
@@ -112,12 +112,12 @@ export function MaterialCapsuleList({ materials, classId, isTeacher = false }: M
                     Enter Realm
                     <ExternalLink className="size-3 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                  </a>
-                 {!isTeacher && (
-                   <LoreAbsorber 
-                     materialId={material.id} 
-                     isAbsorbed={!!(material.views && material.views.length > 0)} 
-                   />
-                 )}
+                  {!isTeacher && (
+                    <LoreAbsorber 
+                      materialId={material.id} 
+                      isAbsorbed={!!(material.loreViews && material.loreViews.length > 0)} 
+                    />
+                  )}
                </div>
             </div>
           </div>

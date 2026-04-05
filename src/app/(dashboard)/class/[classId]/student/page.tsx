@@ -33,7 +33,7 @@ export default async function StudentClassDashboard({
       },
       materials: {
         include: {
-          views: {
+          loreViews: {
             where: { studentId: user?.id }
           }
         }
