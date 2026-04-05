@@ -129,7 +129,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
                     <span className="truncate font-black tracking-tight text-foreground uppercase italic">{user?.name || "Player One"}</span>
-                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role || "STUDENT"}</span>
+                    <span className="truncate text-[10px] font-black text-primary uppercase italic opacity-80">{user?.role === "TEACHER" ? "SAGE" : "HERO"}</span>
                   </div>
                   <ChevronUp className="ml-auto size-5 text-slate-400 group-data-[collapsible=icon]:hidden" />
                 </div>
@@ -137,7 +137,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                 {/* Magic XP Bar */}
                 <div className="w-full space-y-1 group-data-[collapsible=icon]:hidden">
                   <div className="flex justify-between items-center text-[8px] font-black uppercase text-slate-400 italic">
-                    <span>Level {level}</span>
+                    <span>{user?.role === "TEACHER" ? "Wisdom Level" : "Hero Level"} {level}</span>
                     <span>{Math.round(xpInCurrentLevel)} / {xpRequiredForNextLevel} XP</span>
                   </div>
                   <div className="w-full h-2 bg-muted rounded-full overflow-hidden border border-slate-100">
@@ -155,7 +155,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               >
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-4 py-3 text-sm font-black uppercase tracking-widest text-slate-400 italic">
-                    Hero Profile
+                    {user?.role === "TEACHER" ? "Sage Lore" : "Hero Profile"}
                   </DropdownMenuLabel>
                   <DropdownMenuItem render={
                      <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-primary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
