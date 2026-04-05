@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { CalendarDays, ShieldCheck, Sparkles, Wand2, Trophy, Crown } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { getLevelTitle } from "@/lib/gamification"
 
 interface ProfileHeaderProps {
   user: {
@@ -50,7 +51,7 @@ export function ProfileHeader({ user, awardsCount = 0 }: ProfileHeaderProps) {
         accentBg: "bg-amber-50",
         icon: Wand2,
         role: "VENERABLE SAGE",
-        rank: "GRAND ARCHIVIST"
+        rank: getLevelTitle(level)
       }
     : {
         primary: "text-primary",
@@ -60,7 +61,7 @@ export function ProfileHeader({ user, awardsCount = 0 }: ProfileHeaderProps) {
         accentBg: "bg-secondary/10",
         icon: ShieldCheck,
         role: "BRAVE HERO",
-        rank: "MYTHIC EXPLORER"
+        rank: getLevelTitle(level)
       }
 
   return (

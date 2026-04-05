@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button"
 import { ScrollText, Globe, Play, Trash2, ExternalLink, Sparkles, Wand2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { LoreAbsorber } from "./LoreAbsorber"
 
 interface Material {
   id: string
   title: string
   fileUrl: string
   chapterSession: string | null
+  views?: any[]
 }
 
 interface MaterialCapsuleListProps {
@@ -98,17 +100,25 @@ export function MaterialCapsuleList({ materials, classId, isTeacher = false }: M
                   </h4>
                </div>
 
-               <a 
-                href={material.fileUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={cn(
-                  "flex items-center justify-center gap-2 w-full h-12 rounded-2xl font-black italic uppercase text-sm border-4 border-slate-50 bg-slate-50 text-slate-500 hover:bg-white hover:border-primary hover:text-primary transition-all active:scale-95 group/btn"
-                )}
-               >
-                  Enter Realm
-                  <ExternalLink className="size-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-               </a>
+               <div className="flex items-center justify-between gap-4 mt-auto">
+                 <a 
+                   href={material.fileUrl} 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className={cn(
+                     "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl font-black italic uppercase text-[10px] border-4 border-slate-50 bg-slate-50 text-slate-500 hover:bg-white hover:border-primary hover:text-primary transition-all active:scale-95 group/btn"
+                   )}
+                 >
+                    Enter Realm
+                    <ExternalLink className="size-3 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                 </a>
+                 {!isTeacher && (
+                   <LoreAbsorber 
+                     materialId={material.id} 
+                     isAbsorbed={!!(material.views && material.views.length > 0)} 
+                   />
+                 )}
+               </div>
             </div>
           </div>
         )

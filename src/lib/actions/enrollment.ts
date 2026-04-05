@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { calculateLevel } from "@/lib/gamification"
 
 /**
  * Enrolls the current student into a specific world (class).
@@ -55,13 +56,13 @@ export async function enrollInWorld(classId: string) {
 
       if (user) {
         const newXp = user.xp + 50
-        const newLevel = Math.floor((1 + Math.sqrt(1 + 0.08 * newXp)) / 2)
+        const newLevel = calculateLevel(newXp)
 
         await tx.user.update({
           where: { id: userId },
           data: {
              xp: newXp,
-             level: newLevel > user.level ? newLevel : user.level
+             level: newLevel
           }
         })
       }

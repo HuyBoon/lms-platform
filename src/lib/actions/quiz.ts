@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { calculateLevel } from "@/lib/gamification"
 
 const QuizSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -123,10 +124,7 @@ export async function submitQuiz(quizId: string, answers: Record<string, string>
 
       if (user) {
         const newXp = user.xp + xpEarned
-        
-        // Level Formula: Total XP for Level n = 50 * n * (n - 1)
-        // Level n = floor((1 + sqrt(1 + 0.08 * xp)) / 2)
-        const newLevel = Math.floor((1 + Math.sqrt(1 + 0.08 * newXp)) / 2)
+        const newLevel = calculateLevel(newXp)
 
         await tx.user.update({
           where: { id: session.user.id },
