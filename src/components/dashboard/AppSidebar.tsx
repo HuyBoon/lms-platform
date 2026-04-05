@@ -131,12 +131,12 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                     Hero Profile
                   </DropdownMenuLabel>
                   <DropdownMenuItem render={
-                     <a href="/" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-primary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
+                     <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-primary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
                   }>
                        <User className="size-5 text-primary" /> My Identity
                   </DropdownMenuItem>
                   <DropdownMenuItem render={
-                     <a href="/" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-secondary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
+                     <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-secondary/10 transition-all text-foreground font-black italic uppercase tracking-tight text-base cursor-pointer" />
                   }>
                        <Settings className="size-5 text-secondary" /> Settings
                   </DropdownMenuItem>
