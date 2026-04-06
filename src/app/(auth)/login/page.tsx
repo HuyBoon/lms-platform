@@ -21,7 +21,7 @@ export default async function LoginPage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight text-foreground uppercase italic underline decoration-primary decoration-4 underline-offset-4">HUYBOON PLAYHUB</h1>
-          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider">Welcome Back, Hero!</p>
+          <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider">Chào mừng trở lại, Anh hùng!</p>
         </div>
       </div>
       

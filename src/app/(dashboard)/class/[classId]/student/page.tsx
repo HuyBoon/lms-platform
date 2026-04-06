@@ -44,20 +44,20 @@ export default async function StudentClassDashboard({
     }
   })
 
-  if (!classroom) return <div className="p-8 text-center text-slate-500 font-black uppercase italic">Sync Failed</div>
+  if (!classroom) return <div className="p-8 text-center text-slate-500 font-black uppercase italic">Lỗi</div>
 
   return (
     <div className="flex-1 space-y-16 p-10 pt-8 bg-background/50">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full border-2 border-primary/20 w-fit italic">
-             <Star className="size-4 fill-primary" /> HERO MODE ON
+             <Star className="size-4 fill-primary" /> CHẾ ĐỘ ANH HÙNG
           </div>
           <h2 className="text-5xl font-black tracking-tight text-foreground uppercase italic truncate max-w-2xl underline decoration-secondary decoration-8 underline-offset-8">
             {classroom.name}
           </h2>
           <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider ml-1">
-            {classroom.description || "Welcome to your next big learning adventure!"}
+            {classroom.description || "Chào mừng đến với cuộc phiêu lưu học tập tiếp theo!"}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -65,7 +65,7 @@ export default async function StudentClassDashboard({
              <Trophy className="size-6 text-yellow-500" /> Rank #0
            </Link>
            <button className={cn(buttonVariants({ size: "lg" }), "rounded-[2rem] h-14 px-8 font-black uppercase italic tracking-widest shadow-[6px_6px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] bouncy-hover bg-primary")}>
-             Magic Sync
+             Đồng bộ Thần kỳ
            </button>
         </div>
       </div>
@@ -73,8 +73,8 @@ export default async function StudentClassDashboard({
       <div className="grid gap-16 lg:grid-cols-7 items-start">
         <div className="col-span-4 space-y-10">
            <div className="flex items-center justify-between px-2">
-              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic">Active Quests</h3>
-              <span className="text-xs font-black uppercase text-secondary tracking-widest bg-secondary/10 px-4 py-2 rounded-full border-2 border-secondary/20">{classroom.quizzes.length} Missions Ready</span>
+              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic">Nhiệm vụ Đang chạy</h3>
+              <span className="text-xs font-black uppercase text-secondary tracking-widest bg-secondary/10 px-4 py-2 rounded-full border-2 border-secondary/20">{classroom.quizzes.length} Nhiệm vụ Sẵn sàng</span>
            </div>
 
            <div className="grid gap-8">
@@ -102,14 +102,14 @@ export default async function StudentClassDashboard({
                                  "text-[10px] font-black uppercase tracking-[0.2em] italic",
                                  isCompleted ? "text-emerald-500" : "text-primary"
                                )}>
-                                 {isCompleted ? "Mission Accomplished!" : "Quest Available"}
+                                 {isCompleted ? "Nhiệm vụ Hoàn tất!" : "Nhiệm vụ Sẵn có"}
                                </span>
                             </div>
                             <CardTitle className="text-4xl font-black text-foreground tracking-tight uppercase italic group-hover:text-primary transition-colors leading-none">{quiz.title}</CardTitle>
                           </div>
                           {!isCompleted && (
                             <Link href={`/class/${classId}/quizzes/${quiz.id}`} className={cn(buttonVariants({ size: "lg" }), "rounded-[1.5rem] h-16 px-10 font-black italic tracking-widest uppercase gap-3 bouncy-hover shadow-[4px_4px_0px_0px_#B89600]")}>
-                              START QUEST! <Sword className="size-6" />
+                               BẮT ĐẦU! <Sword className="size-6" />
                             </Link>
                           )}
                        </div>
@@ -120,15 +120,15 @@ export default async function StudentClassDashboard({
                     )}>
                        <div className="flex items-center gap-8">
                           <div className="flex items-center gap-3 text-sm font-black text-slate-500 italic uppercase tracking-tight">
-                             <Clock className="size-5 text-blue-400" /> ~20m Fun
+                             <Clock className="size-5 text-blue-400" /> ~20 Phút vui nhộn
                           </div>
                           <div className="flex items-center gap-3 text-sm font-black text-slate-500 italic uppercase tracking-tight">
-                             <GraduationCap className="size-5 text-secondary" /> Expert Sage
+                             <GraduationCap className="size-5 text-secondary" /> Giảng viên Thông thái
                           </div>
                        </div>
                        {isCompleted && (
                          <div className="text-emerald-600 font-black text-2xl uppercase italic tracking-widest bg-white px-6 py-3 rounded-2xl border-4 border-emerald-400 sticker-shadow-sm">
-                            SCORE: {quiz.submissions[0].score}%
+                            ĐIỂM: {quiz.submissions[0].score}%
                          </div>
                        )}
                     </CardContent>
@@ -140,7 +140,7 @@ export default async function StudentClassDashboard({
                    <div className="p-8 bg-white rounded-full border-4 border-slate-100 sticker-shadow-sm opacity-50 mx-auto w-fit">
                       <BookOpen className="size-20 text-slate-200" />
                    </div>
-                   <p className="text-3xl font-black uppercase text-slate-300 italic tracking-tight">No Quests Sighted</p>
+                   <p className="text-3xl font-black uppercase text-slate-300 italic tracking-tight">Không thấy Nhiệm vụ nào</p>
                 </div>
               )}
            </div>
@@ -148,7 +148,7 @@ export default async function StudentClassDashboard({
 
         <div className="col-span-3 space-y-12">
            <div className="space-y-6">
-              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic text-left ml-2">Lore Capsules</h3>
+              <h3 className="text-sm font-black uppercase text-slate-400 tracking-[0.4em] italic text-left ml-2">Viên nang Kiến thức</h3>
               <MaterialCapsuleList materials={classroom.materials} classId={classId} isTeacher={false} />
            </div>
 
@@ -158,11 +158,11 @@ export default async function StudentClassDashboard({
               </div>
               <CardContent className="bg-white m-1 rounded-[2.8rem] p-10 space-y-8 relative z-10 text-center">
                  <div className="space-y-3">
-                    <CardTitle className="text-4xl font-black text-foreground uppercase italic tracking-tight">Trophy Room</CardTitle>
-                    <CardDescription className="text-slate-500 font-semibold italic text-lg leading-tight">Compare your conquests with other Heroes!</CardDescription>
+                    <CardTitle className="text-4xl font-black text-foreground uppercase italic tracking-tight">Phòng Truyền thống</CardTitle>
+                    <CardDescription className="text-slate-500 font-semibold italic text-lg leading-tight">So tài với các Anh hùng khác!</CardDescription>
                  </div>
                  <Link href={`/class/${classId}/leaderboard`} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full border-4 border-secondary text-secondary font-black italic uppercase tracking-widest rounded-[1.5rem] bouncy-hover h-16 text-xl")}>
-                    Open Rankings 🏆
+                    Bảng Xếp Hạng 🏆
                  </Link>
               </CardContent>
            </Card>

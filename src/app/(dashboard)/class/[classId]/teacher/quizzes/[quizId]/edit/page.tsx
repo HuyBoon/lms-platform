@@ -45,10 +45,10 @@ export default async function EditQuizPage({
                 <div className="p-4 bg-emerald-500 rounded-[1.5rem] shadow-xl border-4 border-white rotate-3 sticker-shadow">
                   <ScrollText className="size-10 text-white" />
                 </div>
-                Reforge Quest
+                Chỉnh sửa Thử thách
               </h1>
               <p className="text-slate-500 font-bold text-xl italic uppercase tracking-wider ml-1 flex items-center gap-2">
-                Refining the <span className="text-pink-500 font-black italic">Trial of {quiz.title}</span> for your <span className="text-primary font-black italic underline decoration-wavy decoration-primary/30">Worthy Heroes!</span>
+                Cập nhật Thử thách của bạn để phù hợp với trình độ của các Anh hùng.
               </p>
            </div>
         </div>
