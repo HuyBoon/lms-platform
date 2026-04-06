@@ -5,6 +5,7 @@ import { BookOpen, GraduationCap, Plus, Users, LayoutDashboard, ArrowRight } fro
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { cn } from "@/lib/utils"
+import { formatNumber } from "@/lib/format"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -30,16 +31,16 @@ export default async function DashboardPage() {
             <div className="p-3 bg-primary rounded-2xl shadow-lg border-4 border-white rotate-2">
               <LayoutDashboard className="size-8 text-primary-foreground" />
             </div>
-            Adventure Hub
+            Trung tâm Khám phá
           </h2>
           <p className="text-slate-500 font-bold text-lg italic uppercase tracking-wider ml-1">
-            Hi <span className="text-primary font-black italic">{user?.name}</span>! Ready for your next <span className="text-secondary italic">Super Mission?</span>
+            Chào {user?.name || "Anh hùng"}! Sẵn sàng cho Nhiệm vụ siêu cấp chưa?
           </p>
         </div>
         {user?.role === "TEACHER" && (
           <Link href="/class/create" className={cn(buttonVariants({ size: "lg" }), "bouncy-hover italic shadow-[6px_6px_0px_0px_#B89600] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]")}>
             <Plus className="size-6" />
-            Create New World
+            Tạo Thế giới mới
           </Link>
         )}
       </div>
@@ -78,24 +79,24 @@ export default async function DashboardPage() {
                     {cls.name}
                   </CardTitle>
                   <CardDescription className="text-slate-500 font-bold italic line-clamp-2 mt-1 lowercase first-letter:uppercase">
-                    {cls.description || "Start your amazing journey in this learning world!"}
+                    {cls.description || "Bắt đầu hành trình kỳ thú của bạn tại thế giới học tập này!"}
                   </CardDescription>
                 </CardHeader>
 
                 <CardContent className={cn("p-6 pt-4 border-t-4 border-dashed flex items-center justify-between", color.bg, color.border.replace('border-', 'border-t-'))}>
                   <div className="flex items-center gap-6">
                     <div className="flex flex-col items-start">
-                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Explorers</span>
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Người khám phá</span>
                       <div className="flex items-center gap-1.5 font-black text-foreground">
                         <Users className="size-4 text-blue-500" />
-                        {cls._count.enrollments}
+                        {formatNumber(cls._count.enrollments)}
                       </div>
                     </div>
                     <div className="flex flex-col items-start">
-                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Quests</span>
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">Thử thách</span>
                       <div className="flex items-center gap-1.5 font-black text-foreground">
                         <Plus className="size-4 text-emerald-500 rotate-45" />
-                        {cls._count.quizzes}
+                        {formatNumber(cls._count.quizzes)}
                       </div>
                     </div>
                   </div>
@@ -113,8 +114,8 @@ export default async function DashboardPage() {
                 <LayoutDashboard className="size-24 text-slate-300 opacity-50" />
              </div>
              <div className="text-center space-y-2">
-                <p className="text-2xl font-black uppercase tracking-tight text-slate-400 italic">No Active Missions Found</p>
-                <p className="text-slate-400 font-bold italic">Wait for your Sage to invite you to a World!</p>
+                <p className="text-2xl font-black uppercase tracking-tight text-slate-400 italic">Chưa có Nhiệm vụ nào</p>
+                <p className="text-slate-400 font-bold italic">Hãy chờ Giảng viên mời bạn vào một Thế giới nhé!</p>
              </div>
           </div>
         )}

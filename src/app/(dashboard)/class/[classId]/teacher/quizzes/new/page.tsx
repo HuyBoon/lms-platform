@@ -29,10 +29,10 @@ export default async function NewQuizPage({
                 <div className="p-4 bg-pink-500 rounded-[1.5rem] shadow-xl border-4 border-white rotate-[-3deg] sticker-shadow">
                   <ScrollText className="size-10 text-white" />
                 </div>
-                Forge Quest
+                Rèn dũa Thử thách
               </h1>
               <p className="text-slate-500 font-bold text-xl italic uppercase tracking-wider ml-1 flex items-center gap-2">
-                Draft your <span className="text-pink-500 font-black italic">Epic Trial</span> and challenge your <span className="text-primary font-black italic underline decoration-wavy decoration-primary/30">Lvl 1 Heroes!</span>
+                Hãy soạn thảo một Thử thách Sử thi và thử tài các Anh hùng của bạn!
               </p>
            </div>
         </div>

@@ -15,7 +15,7 @@ import {
   ScrollText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface BreadcrumbItem {
   label: string
@@ -42,11 +42,18 @@ export function MagicBreadcrumb() {
     const href = `/${pathSegments.slice(0, index + 1).join("/")}`
     const isLast = index === pathSegments.length - 1
     
-    // Capitalize and format label
-    // If it looks like a cuid/id (starts with c and long), we might want to handle it, 
-    // but for now let's just capitalize
+    // Hardcoded Vietnamese paths
     let label = segment.charAt(0).toUpperCase() + segment.slice(1)
-    if (segment.length > 20) label = "Enchanted Realm" // Placeholder for IDs
+    
+    if (segment === "dashboard") label = "Phòng của tôi"
+    if (segment === "worlds") label = "Thế giới"
+    if (segment === "profile") label = "Danh tính"
+    if (segment === "settings") label = "Cài đặt"
+    if (segment === "class") label = "Lớp học"
+    if (segment === "teacher") label = "Giảng viên"
+    if (segment === "student") label = "Học viên"
+
+    if (segment.length > 20) label = "Thế giới Kỳ bí" // Placeholder for IDs
 
     return {
       label,

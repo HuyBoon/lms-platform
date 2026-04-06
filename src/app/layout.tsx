@@ -1,34 +1,34 @@
 import type { Metadata } from "next";
-import { Fredoka } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+// 1. Đổi sang Nunito và BẮT BUỘC thêm subset "vietnamese"
+const nunito = Nunito({
+    variable: "--font-nunito",
+    subsets: ["latin", "vietnamese"],
+    // Thêm các weight 800, 900 (ExtraBold, Black) vì phong cách Game cần chữ cực đậm
+    weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "HuyBoon PlayHub",
-  description: "Playful Learning Adventure for Everyone!",
+    title: "HuyBoon PlayHub - Học viện Anh hùng",
+    description: "Trải nghiệm học tập vui nhộn và đầy thử thách!",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={`${fredoka.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans selection:bg-primary/30">
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html
+            lang="vi"
+            className={`${nunito.variable} h-full antialiased`}
+        >
+            <body className="min-h-full flex flex-col font-sans selection:bg-primary/30">
+                <TooltipProvider>{children}</TooltipProvider>
+            </body>
+        </html>
+    );
 }

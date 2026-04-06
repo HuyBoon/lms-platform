@@ -104,19 +104,16 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
 
   const handleSave = async () => {
     if (!title) {
-       setError("Quest Title is missing, Sage!")
+       setError("Thiếu tiêu đề rồi, Giảng viên ơi!")
        return
     }
 
     setIsPending(true)
     setError(null)
 
-    const result = await createQuiz({
-      title,
-      description,
-      classId,
-      questions
-    })
+    const result = initialData?.id 
+      ? await updateQuiz(initialData.id, { title, description, classId, questions })
+      : await createQuiz({ title, description, classId, questions })
 
     if (result.error) {
       setError(result.error)
@@ -134,9 +131,9 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
         
         <div className="space-y-6 relative">
           <div className="space-y-4">
-             <label className="text-xs font-black uppercase tracking-widest text-slate-400 italic ml-2">Quest Metadata</label>
+             <label className="text-xs font-black uppercase tracking-widest text-slate-400 italic ml-2">Thông tin Thử thách</label>
              <Input 
-               placeholder="Quest Title (e.g. Trial of Ancient Logic)" 
+               placeholder="Tiêu đề Thử thách (Vd: Thử thách Logic Cổ đại)" 
                className="text-4xl font-black italic uppercase placeholder:text-slate-200 border-none px-0 focus-visible:ring-0 h-auto bg-transparent border-b-4 border-slate-100 rounded-none focus:border-primary transition-colors"
                value={title}
                onChange={(e) => setTitle(e.target.value)}
@@ -144,7 +141,7 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
           </div>
           
           <Textarea 
-            placeholder="Describe the epic journey that awaits your heroes..." 
+            placeholder="Mô tả hành trình huyền thoại đang chờ đợi các anh hùng..." 
             className="text-xl font-bold italic placeholder:text-slate-200 border-none px-0 focus-visible:ring-0 min-h-[100px] bg-transparent resize-none overflow-hidden"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -154,7 +151,9 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
 
       <div className="space-y-10">
         <div className="flex items-center justify-between px-4">
-           <h3 className="text-xl font-black uppercase text-slate-300 tracking-[0.3em] italic">Hero Trials ({questions.length})</h3>
+           <h3 className="text-xl font-black uppercase text-slate-300 tracking-[0.3em] italic">
+             Các Thử thách ({questions.length})
+           </h3>
            <Sparkles className="size-6 text-yellow-400 animate-pulse" />
         </div>
 
@@ -173,7 +172,7 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
                      <div className="size-12 rounded-2xl bg-white border-4 border-slate-200 flex items-center justify-center font-black text-slate-400 text-xl shadow-inner italic">
                          {qIndex + 1}
                      </div>
-                     <CardTitle className="text-xl font-black text-foreground uppercase italic tracking-tight">Question {qIndex + 1}</CardTitle>
+                     <CardTitle className="text-xl font-black text-foreground uppercase italic tracking-tight">Câu hỏi {qIndex + 1}</CardTitle>
                   </div>
                   <button 
                     onClick={() => removeQuestion(qIndex)}
@@ -184,9 +183,9 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
                 </CardHeader>
                 <CardContent className="p-10 space-y-10">
                    <div className="space-y-4">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">The Inquiry</label>
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">Nội dung Câu hỏi</label>
                       <Input 
-                        placeholder="State your question clearly, Sage..." 
+                        placeholder="Nội dung Câu hỏi" 
                         className="text-2xl font-black italic bg-muted/20 border-4 border-white rounded-[1.5rem] p-6 h-16 group/input focus:border-primary transition-all sticker-shadow-sm"
                         value={q.questionText}
                         onChange={(e) => updateQuestionText(qIndex, e.target.value)}
@@ -194,20 +193,20 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
                    </div>
 
                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">Potential Paths (Answers)</label>
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">Thêm lựa chọn</label>
                       <div className="grid gap-6 md:grid-cols-2">
                          {q.answers.map((a, aIndex) => (
                             <div key={aIndex} className="relative group/ans">
                                <Input 
-                                  placeholder={`Answer ${aIndex + 1}...`}
+                                  placeholder={`Câu trả lời ${aIndex + 1}...`}
                                   className={cn(
                                     "text-lg font-bold italic bg-white border-4 rounded-2xl p-6 h-14 pl-14 transition-all focus-visible:ring-0",
                                     a.isCorrect ? "border-emerald-400 text-emerald-600 bg-emerald-50/30" : "border-slate-100 text-slate-500"
                                   )}
                                   value={a.answerText}
                                   onChange={(e) => updateAnswerText(qIndex, aIndex, e.target.value)}
-                               />
-                               <button 
+                                />
+                                <button 
                                  onClick={() => toggleCorrect(qIndex, aIndex)}
                                  className="absolute left-4 top-1/2 -translate-y-1/2 p-1 transition-all"
                                >
@@ -219,12 +218,12 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
                                </button>
                             </div>
                          ))}
-                         <button 
-                           onClick={() => addAnswer(qIndex)}
-                           className="h-14 border-4 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-3 text-slate-400 font-black uppercase italic tracking-widest hover:bg-slate-50 transition-colors"
-                         >
-                            <Plus className="size-5" /> Add Path
-                         </button>
+                          <button 
+                            onClick={() => addAnswer(qIndex)}
+                            className="h-14 border-4 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-3 text-slate-400 font-black uppercase italic tracking-widest hover:bg-slate-50 transition-colors"
+                          >
+                             <Plus className="size-5" /> Thêm lựa chọn
+                          </button>
                       </div>
                    </div>
                 </CardContent>
@@ -238,7 +237,7 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
              onClick={addQuestion}
              className="flex-1 h-20 bg-white border-4 border-slate-200 rounded-[2rem] sticker-shadow flex items-center justify-center gap-4 text-slate-400 font-black uppercase italic tracking-widest hover:border-primary/50 hover:text-primary transition-all active:scale-95 text-xl"
            >
-              <Plus className="size-8 stroke-[3]" /> Forge Another Trial
+              <Plus className="size-8 stroke-[3]" /> Tạo thêm Câu hỏi
            </button>
            
            <button 
@@ -246,13 +245,13 @@ export function QuestBuilder({ classId, initialData }: { classId: string, initia
              disabled={isPending}
              className="flex-1 h-20 bg-primary border-4 border-white rounded-[2rem] shadow-[8px_8px_0px_0px_rgba(255,255,255,1),8px_8px_0px_4px_#B89600] flex items-center justify-center gap-4 text-primary-foreground font-black uppercase italic tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all text-xl disabled:opacity-50"
            >
-              {isPending ? (
-                <Loader2 className="size-8 animate-spin" />
-              ) : (
-                <>
-                  <Save className="size-8 stroke-[3]" /> Finalize Scrolls
-                </>
-              )}
+               {isPending ? (
+                 <Loader2 className="size-8 animate-spin" />
+               ) : (
+                 <>
+                   <Save className="size-8 stroke-[3]" /> Hoàn tất Thử thách
+                 </>
+               )}
            </button>
         </div>
 

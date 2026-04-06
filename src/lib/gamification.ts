@@ -2,14 +2,13 @@
  * Gamification Utility for HuyBoon PlayHub
  * Maps XP logic and Level titles to the RPG-style experience.
  */
-
 export const getLevelTitle = (level: number) => {
-  if (level >= 100) return "Lore Master"
-  if (level >= 50) return "Grandmaster of Lore"
-  if (level >= 21) return "Mythic Legend"
-  if (level >= 11) return "Elite Hero"
-  if (level >= 6) return "Brave Adventurer"
-  return "Novice Explorer"
+  if (level >= 100) return "Bậc thầy Tri thức"
+  if (level >= 50) return "Đại Sư Tri thức"
+  if (level >= 21) return "Huyền thoại Thần thoại"
+  if (level >= 11) return "Anh hùng Ưu tú"
+  if (level >= 6) return "Chiến binh Quả cảm"
+  return "Nhà Thám hiểm Mới"
 }
 
 /**

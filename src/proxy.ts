@@ -1,6 +1,12 @@
 import authConfig from "./auth.config"
 import NextAuth from "next-auth"
 import { NextResponse } from "next/server"
+import {
+  DEFAULT_LOGIN_REDIRECT,
+  apiAuthPrefix,
+  authRoutes,
+  publicRoutes,
+} from "@/routes"
 
 // We use the light-weight NextAuth instance for the proxy layer 
 // to avoid heavy database initializations (Prisma) on every request.
@@ -10,22 +16,30 @@ export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
   
-  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth")
-  const isPublicRoute = ["/", "/login", "/register"].includes(nextUrl.pathname)
-  const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/finance") || nextUrl.pathname.startsWith("/class")
-  const isAuthRoute = ["/login", "/register"].includes(nextUrl.pathname)
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+  const isProtectedRoute = !isPublicRoute && !isAuthRoute && !isApiAuthRoute
 
   if (isApiAuthRoute) return NextResponse.next()
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/dashboard", nextUrl))
+      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
     return NextResponse.next()
   }
 
-  if (!isLoggedIn && isDashboardRoute) {
-    return NextResponse.redirect(new URL("/login", nextUrl))
+  if (!isLoggedIn && isProtectedRoute) {
+    let callbackUrl = nextUrl.pathname
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search
+    }
+
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl)
+    return NextResponse.redirect(
+      new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+    )
   }
 
   return NextResponse.next()
